@@ -1,0 +1,329 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#15201d">
+  <title>Mesa Arcana</title>
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="preconnect" href="https://www.gstatic.com">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <button class="brand" id="goHomeButton" type="button" aria-label="Volver al inicio">
+        <span class="brand-mark">MA</span>
+        <span>
+          <strong>Mesa Arcana</strong>
+          <small id="connectionStatus">Sin sala</small>
+        </span>
+      </button>
+
+      <div class="topbar-actions">
+        <button class="icon-button" id="copyRoomButton" type="button" title="Copiar codigo de sala" aria-label="Copiar codigo de sala">
+          <span data-icon="copy"></span>
+        </button>
+        <button class="icon-button" id="openBoardButton" type="button" title="Abrir tablero" aria-label="Abrir tablero">
+          <span data-icon="monitor"></span>
+        </button>
+      </div>
+    </header>
+
+    <main>
+      <section class="view active" id="homeView" aria-labelledby="homeTitle">
+        <div class="hero">
+          <div class="hero-copy">
+            <p class="eyebrow">Mesa presencial multi-pantalla</p>
+            <h1 id="homeTitle">La partida empieza en una sala.</h1>
+            <p>Un tablero publico, celulares privados y un director con control de escena, dados y combate.</p>
+          </div>
+          <div class="hero-panel" aria-label="Estado de una partida de ejemplo">
+            <div class="scene-orbit">
+              <span>DM</span>
+              <span>J1</span>
+              <span>J2</span>
+              <span>T</span>
+            </div>
+            <div class="hero-stat">
+              <strong>3-5</strong>
+              <span>jugadores iniciales</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="lobby-grid">
+          <form class="panel" id="createRoomForm">
+            <h2>Crear sala</h2>
+            <label>
+              Nombre de aventura
+              <input id="campaignNameInput" maxlength="48" placeholder="La grieta de hierro">
+            </label>
+            <label>
+              Tu nombre
+              <input id="hostNameInput" maxlength="28" placeholder="Director">
+            </label>
+            <button class="primary-button" type="submit">
+              <span data-icon="sparkles"></span>
+              Crear
+            </button>
+          </form>
+
+          <form class="panel" id="joinRoomForm">
+            <h2>Entrar</h2>
+            <label>
+              Codigo de sala
+              <input id="roomCodeInput" maxlength="12" placeholder="LUNA-483" autocomplete="off">
+            </label>
+            <label>
+              Tu nombre
+              <input id="participantNameInput" maxlength="28" placeholder="Joaquin">
+            </label>
+            <div class="role-tabs" role="radiogroup" aria-label="Rol">
+              <label><input type="radio" name="joinRole" value="player" checked> Jugador</label>
+              <label><input type="radio" name="joinRole" value="dm"> Director</label>
+              <label><input type="radio" name="joinRole" value="board"> Tablero</label>
+            </div>
+            <button class="primary-button" type="submit">
+              <span data-icon="log-in"></span>
+              Entrar
+            </button>
+          </form>
+        </div>
+      </section>
+
+      <section class="view" id="playerView" aria-labelledby="playerTitle">
+        <div class="workspace">
+          <aside class="sidebar">
+            <div class="room-card">
+              <span>Sala</span>
+              <strong id="playerRoomCode">----</strong>
+            </div>
+            <div class="turn-card" id="playerTurnCard">
+              <span>Turno</span>
+              <strong id="playerTurnName">Sin combate</strong>
+            </div>
+            <div class="quick-rolls" id="playerQuickRolls"></div>
+          </aside>
+
+          <div class="content-stack">
+            <div class="section-header">
+              <div>
+                <p class="eyebrow">Jugador</p>
+                <h1 id="playerTitle">Ficha de personaje</h1>
+              </div>
+              <button class="secondary-button" id="saveCharacterButton" type="button">
+                <span data-icon="save"></span>
+                Guardar
+              </button>
+            </div>
+
+            <form class="character-sheet" id="characterForm">
+              <div class="portrait-card">
+                <div class="portrait" id="characterPortrait">?</div>
+                <label>
+                  Nombre
+                  <input id="characterNameInput" maxlength="32" placeholder="Nombre del heroe">
+                </label>
+                <label>
+                  Linaje
+                  <select id="lineageSelect"></select>
+                </label>
+                <label>
+                  Clase / camino
+                  <select id="classSelect"></select>
+                </label>
+                <label>
+                  Trasfondo
+                  <select id="backgroundSelect"></select>
+                </label>
+              </div>
+
+              <div class="panel attributes-panel">
+                <div class="points-row">
+                  <div>
+                    <span>Puntos libres</span>
+                    <strong id="freePointsValue">10</strong>
+                  </div>
+                  <button class="ghost-button" id="resetAttributesButton" type="button">
+                    <span data-icon="rotate-ccw"></span>
+                    Reiniciar
+                  </button>
+                </div>
+                <div class="attributes-grid" id="attributesGrid"></div>
+              </div>
+
+              <div class="panel vitality-panel">
+                <label>
+                  Vida actual
+                  <input id="hpCurrentInput" type="number" min="0" max="999">
+                </label>
+                <label>
+                  Vida maxima
+                  <input id="hpMaxInput" type="number" min="1" max="999">
+                </label>
+                <label>
+                  Mana actual
+                  <input id="manaCurrentInput" type="number" min="0" max="999">
+                </label>
+                <label>
+                  Mana maximo
+                  <input id="manaMaxInput" type="number" min="0" max="999">
+                </label>
+                <label>
+                  Defensa
+                  <input id="defenseInput" type="number" min="0" max="999" readonly>
+                </label>
+                <label>
+                  Iniciativa
+                  <input id="initiativeInput" type="number" min="0" max="999" readonly>
+                </label>
+              </div>
+
+              <div class="panel skills-panel">
+                <div class="points-row">
+                  <div>
+                    <span>Puntos de habilidad</span>
+                    <strong id="skillPointsValue">4</strong>
+                  </div>
+                </div>
+                <div class="skills-grid" id="skillsGrid"></div>
+              </div>
+
+              <div class="panel notes-panel">
+                <label>
+                  Rasgos, equipo y notas
+                  <textarea id="characterNotesInput" rows="8" placeholder="Arma, objeto raro, deuda, secreto, objetivo personal..."></textarea>
+                </label>
+              </div>
+            </form>
+          </div>
+        </div>
+      </section>
+
+      <section class="view" id="dmView" aria-labelledby="dmTitle">
+        <div class="workspace dm-layout">
+          <aside class="sidebar">
+            <div class="room-card">
+              <span>Sala</span>
+              <strong id="dmRoomCode">----</strong>
+            </div>
+            <button class="primary-button" id="startCombatButton" type="button">
+              <span data-icon="swords"></span>
+              Iniciativa
+            </button>
+            <button class="secondary-button" id="nextTurnButton" type="button">
+              <span data-icon="skip-forward"></span>
+              Siguiente
+            </button>
+          </aside>
+
+          <div class="content-stack">
+            <div class="section-header">
+              <div>
+                <p class="eyebrow">Director</p>
+                <h1 id="dmTitle">Control de sesion</h1>
+              </div>
+              <button class="secondary-button" id="broadcastSceneButton" type="button">
+                <span data-icon="send"></span>
+                Mostrar escena
+              </button>
+            </div>
+
+            <div class="dm-grid">
+              <form class="panel" id="sceneForm">
+                <h2>Escena</h2>
+                <label>
+                  Titulo
+                  <input id="sceneTitleInput" maxlength="60" placeholder="Puerta de obsidiana">
+                </label>
+                <label>
+                  Descripcion publica
+                  <textarea id="sceneDescriptionInput" rows="7" placeholder="Lo que todos pueden ver..."></textarea>
+                </label>
+                <label>
+                  Modo visual
+                  <select id="sceneModeSelect">
+                    <option value="wide">Escenario entero</option>
+                    <option value="room">Habitacion actual</option>
+                    <option value="focus">Detalle importante</option>
+                  </select>
+                </label>
+              </form>
+
+              <div class="panel">
+                <h2>Personajes</h2>
+                <div class="entity-list" id="dmCharactersList"></div>
+              </div>
+
+              <div class="panel library-panel">
+                <h2>Biblioteca manual</h2>
+                <div class="library-tabs" role="tablist" aria-label="Biblioteca del director">
+                  <button class="ghost-button active" type="button" data-library-tab="enemies">Enemigos</button>
+                  <button class="ghost-button" type="button" data-library-tab="npcs">NPCs</button>
+                  <button class="ghost-button" type="button" data-library-tab="objects">Objetos</button>
+                </div>
+                <div class="library-list" id="dmLibraryList"></div>
+              </div>
+
+              <div class="panel">
+                <h2>Enemigos</h2>
+                <div class="entity-list" id="dmEnemiesList"></div>
+              </div>
+
+              <div class="panel">
+                <h2>NPCs visibles</h2>
+                <div class="entity-list" id="dmNpcsList"></div>
+              </div>
+
+              <div class="panel">
+                <h2>Objetos visibles</h2>
+                <div class="entity-list" id="dmObjectsList"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="view" id="boardView" aria-labelledby="boardTitle">
+        <div class="board-shell" id="boardShell">
+          <div class="board-scene">
+            <div class="board-header">
+              <div>
+                <p class="eyebrow">Tablero publico</p>
+                <h1 id="boardTitle">Sin escena</h1>
+              </div>
+              <button class="icon-button" id="toggleBoardScaleButton" type="button" title="Cambiar vista" aria-label="Cambiar vista">
+                <span data-icon="maximize"></span>
+              </button>
+            </div>
+            <p id="boardSceneDescription">El director todavia no mostro una escena.</p>
+            <div class="board-stage" id="boardStage">
+              <div class="stage-grid"></div>
+              <div class="token-layer" id="boardTokens"></div>
+            </div>
+          </div>
+
+          <aside class="board-side">
+            <div class="turn-card">
+              <span>Turno actual</span>
+              <strong id="boardTurnName">Sin combate</strong>
+            </div>
+            <div class="panel compact-panel">
+              <h2>Tiradas</h2>
+              <div class="roll-feed" id="rollFeed"></div>
+            </div>
+          </aside>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+  <script src="firebase-config.js"></script>
+  <script src="game-system.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

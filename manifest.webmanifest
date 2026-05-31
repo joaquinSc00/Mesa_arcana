@@ -1,0 +1,9 @@
+{
+  "name": "Mesa Arcana",
+  "short_name": "Mesa Arcana",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#101613",
+  "theme_color": "#15201d",
+  "icons": []
+}
