@@ -203,6 +203,15 @@ button {
   margin: -96px auto 32px;
 }
 
+.active-rooms-panel {
+  max-width: 980px;
+  margin: 0 auto 32px;
+}
+
+.compact-header {
+  margin-bottom: 12px;
+}
+
 .panel,
 .portrait-card {
   padding: 18px;
@@ -378,6 +387,7 @@ form {
 
 .attributes-panel,
 .skills-panel,
+.inventory-panel,
 .notes-panel {
   grid-column: 2;
 }
@@ -416,6 +426,40 @@ form {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 8px;
+}
+
+.final-character-card {
+  display: grid;
+  gap: 14px;
+}
+
+.final-character-card[hidden] {
+  display: none;
+}
+
+.sheet-summary {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.summary-box {
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 10px;
+  background: rgba(16, 22, 19, 0.35);
+}
+
+.summary-box span {
+  display: block;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.summary-box strong {
+  display: block;
+  margin-top: 4px;
+  font-size: 20px;
 }
 
 .skill-card {
@@ -604,6 +648,18 @@ form {
   flex-wrap: wrap;
 }
 
+.inline-edit {
+  display: grid;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.mini-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
 .entity-actions button {
   min-height: 32px;
   padding: 0 9px;
@@ -759,6 +815,7 @@ form {
 
   .attributes-panel,
   .skills-panel,
+  .inventory-panel,
   .notes-panel,
   .vitality-panel {
     grid-column: auto;
@@ -798,6 +855,7 @@ form {
   .role-tabs,
   .attributes-grid,
   .skills-grid,
+  .sheet-summary,
   .vitality-panel,
   .sidebar {
     grid-template-columns: 1fr;

@@ -3,6 +3,7 @@ const firebaseConfig = window.MESA_ARCANA_FIREBASE_CONFIG;
 const system = window.MESA_ARCANA_SYSTEM;
 const attributes = system.attributes;
 const skills = system.skills;
+const DELETE_ROOM_CODE = String.fromCharCode(56, 55, 51, 48, 49);
 
 const baseState = {
   roomCode: "",
@@ -16,6 +17,7 @@ const baseState = {
   unsubscribe: null,
   hasShownRole: false,
   activeLibrary: "enemies",
+  activeFocusFilter: "social",
   localBonus: emptyAttributeMap(),
   skillTraining: emptySkillMap()
 };
@@ -60,6 +62,7 @@ function init() {
 
   restoreSession();
   if (!state.roomCode) showView("home");
+  loadActiveRooms();
 }
 
 function hydrateIcons() {
@@ -86,11 +89,14 @@ function bindEvents() {
   byId("goHomeButton").addEventListener("click", () => {
     state.hasShownRole = true;
     showView("home");
+    loadActiveRooms();
   });
   byId("copyRoomButton").addEventListener("click", copyRoomCode);
   byId("openBoardButton").addEventListener("click", openBoard);
   byId("saveCharacterButton").addEventListener("click", saveCharacter);
+  byId("finalizeCharacterButton").addEventListener("click", finalizeCharacter);
   byId("resetAttributesButton").addEventListener("click", resetCharacterBuild);
+  byId("refreshRoomsButton").addEventListener("click", loadActiveRooms);
   byId("lineageSelect").addEventListener("change", refreshCharacterPreview);
   byId("classSelect").addEventListener("change", refreshCharacterPreview);
   byId("backgroundSelect").addEventListener("change", refreshCharacterPreview);
@@ -106,6 +112,12 @@ function bindEvents() {
     button.addEventListener("click", () => {
       state.activeLibrary = button.dataset.libraryTab;
       renderDmLibrary();
+    });
+  });
+  document.querySelectorAll("[data-focus-filter]").forEach((button) => {
+    button.addEventListener("click", () => {
+      state.activeFocusFilter = button.dataset.focusFilter;
+      renderDmFocus();
     });
   });
   byId("toggleBoardScaleButton").addEventListener("click", () => byId("boardShell").classList.toggle("focused"));
@@ -153,6 +165,74 @@ function joinRoom(event) {
   }
 
   connectToRoom(roomCode, role, name, crypto.randomUUID());
+}
+
+function loadActiveRooms() {
+  const list = byId("activeRoomsList");
+  if (!list) return;
+
+  if (!state.database && window.firebase && firebaseConfig) {
+    try {
+      if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+      state.database = firebase.database();
+    } catch {
+      list.innerHTML = `<div class="entity-item"><span>Firebase no esta disponible.</span></div>`;
+      return;
+    }
+  }
+
+  if (!state.database) {
+    list.innerHTML = `<div class="entity-item"><span>Firebase no esta disponible.</span></div>`;
+    return;
+  }
+
+  state.database.ref(ROOT_PATH).once("value").then((snapshot) => {
+    const rooms = snapshot.val() || {};
+    const entries = Object.entries(rooms).sort((a, b) => (b[1].createdAt || 0) - (a[1].createdAt || 0));
+    list.innerHTML = entries.length ? entries.map(([code, room]) => `
+      <div class="entity-item">
+        <strong>${code}</strong>
+        <span>${room.campaignName || "Aventura sin nombre"} - ${Object.keys(room.characters || {}).length} personaje(s)</span>
+        <div class="entity-actions">
+          <button type="button" data-join-room="${code}" data-join-role="dm">Director</button>
+          <button type="button" data-join-room="${code}" data-join-role="board">Tablero</button>
+          <button type="button" data-delete-room="${code}">Borrar</button>
+        </div>
+      </div>
+    `).join("") : `<div class="entity-item"><span>No hay salas activas.</span></div>`;
+    attachRoomActions();
+  }).catch(() => {
+    list.innerHTML = `<div class="entity-item"><span>No pude leer salas activas.</span></div>`;
+  });
+}
+
+function attachRoomActions() {
+  document.querySelectorAll("[data-join-room]").forEach((button) => {
+    button.addEventListener("click", () => {
+      connectToRoom(button.dataset.joinRoom, button.dataset.joinRole, button.dataset.joinRole === "dm" ? "Director" : "Tablero", crypto.randomUUID());
+    });
+  });
+  document.querySelectorAll("[data-delete-room]").forEach((button) => {
+    button.addEventListener("click", () => deleteRoom(button.dataset.deleteRoom));
+  });
+}
+
+function deleteRoom(roomCode) {
+  const typed = prompt(`Codigo para borrar la sala ${roomCode}`);
+  if (typed !== DELETE_ROOM_CODE) {
+    toast("Codigo incorrecto. No se borro la sala.");
+    return;
+  }
+
+  state.database.ref(`${ROOT_PATH}/${roomCode}`).remove().then(() => {
+    if (state.roomCode === roomCode) {
+      localStorage.removeItem("mesaArcanaSession");
+      state = { ...baseState, localBonus: emptyAttributeMap(), skillTraining: emptySkillMap() };
+      showView("home");
+    }
+    loadActiveRooms();
+    toast(`Sala ${roomCode} borrada.`);
+  });
 }
 
 async function connectToRoom(roomCode, role, participantName, participantId, initialRoom = null) {
@@ -271,6 +351,8 @@ function renderAttributes() {
       </div>
     `;
     const [minus, plus] = card.querySelectorAll("button");
+    minus.disabled = isCharacterFinalized();
+    plus.disabled = isCharacterFinalized();
     minus.addEventListener("click", () => changeLocalBonus(attribute.key, -1));
     plus.addEventListener("click", () => changeLocalBonus(attribute.key, 1));
     grid.append(card);
@@ -296,7 +378,9 @@ function renderSkills() {
       </div>
       <button type="button" aria-label="Alternar ${skill.name}">${trained || granted ? "✓" : "+"}</button>
     `;
-    card.querySelector("button").addEventListener("click", () => toggleSkillTraining(skill.key));
+    const button = card.querySelector("button");
+    button.disabled = isCharacterFinalized();
+    button.addEventListener("click", () => toggleSkillTraining(skill.key));
     grid.append(card);
   });
 }
@@ -328,6 +412,7 @@ function renderCharacterForm() {
   if (state.role !== "player" || !state.room) return;
   const character = state.room.characters?.[state.participantId];
   if (!character) {
+    setCharacterEditingMode(false);
     refreshCharacterPreview();
     return;
   }
@@ -340,8 +425,11 @@ function renderCharacterForm() {
   state.skillTraining = { ...emptySkillMap(), ...(character.skillTraining || {}) };
   byId("hpCurrentInput").value = character.hpCurrent ?? character.derived?.hpMax ?? 12;
   byId("manaCurrentInput").value = character.manaCurrent ?? character.derived?.manaMax ?? 4;
+  byId("characterInventoryInput").value = character.inventory || "";
   byId("characterNotesInput").value = character.notes || "";
   refreshCharacterPreview();
+  setCharacterEditingMode(character.status === "ready");
+  renderFinalCharacterCard(character);
 }
 
 function renderDm() {
@@ -359,7 +447,63 @@ function renderDm() {
   byId("dmNpcsList").innerHTML = renderEntityList(npcs, "npc");
   byId("dmObjectsList").innerHTML = renderEntityList(objects, "object");
   renderDmLibrary();
+  renderDmFocus();
   attachEntityActions();
+}
+
+function renderDmFocus() {
+  const focus = byId("dmTurnFocus");
+  const details = byId("dmFocusDetails");
+  if (!focus || !details || !state.room) return;
+
+  document.querySelectorAll("[data-focus-filter]").forEach((button) => {
+    button.classList.toggle("active", button.dataset.focusFilter === state.activeFocusFilter);
+  });
+
+  const combat = state.room.combat || {};
+  const currentId = combat.order?.[combat.currentIndex] || "";
+  const character = state.room.characters?.[currentId];
+  const entity = character || state.room.enemies?.[currentId] || state.room.npcs?.[currentId];
+
+  if (!entity) {
+    focus.innerHTML = `<div class="entity-item"><span>No hay turno seleccionado.</span></div>`;
+    details.innerHTML = "";
+    return;
+  }
+
+  focus.innerHTML = `
+    <div class="entity-item">
+      <strong>${entity.name || "Sin nombre"}</strong>
+      <span>${getEntitySubtitle(entity, character ? "character" : "enemy")}</span>
+    </div>
+  `;
+
+  if (!character) {
+    details.innerHTML = `<div class="entity-item"><span>Consulta detallada disponible para personajes listos.</span></div>`;
+    return;
+  }
+
+  const filter = getFocusFilter(state.activeFocusFilter);
+  const skillEntries = filter.skills
+    .filter((key) => Number(character.skills?.[key] || 0) > 0)
+    .map((key) => `${getSkillName(key)} +${character.skills[key]}`);
+  const traitEntries = (character.traits || [])
+    .map((key) => system.traits[key])
+    .filter((trait) => trait && trait.appliesTo.some((item) => filter.skills.includes(item) || item === "any"))
+    .map((trait) => trait.name);
+
+  details.innerHTML = `
+    <div class="entity-item">
+      <strong>${filter.name}</strong>
+      <div class="entity-meta">
+        <span>Atributos: ${filter.attributes.map((key) => `${getAttributeName(key)} ${character.attributes?.[key] ?? "-"}`).join(" · ")}</span>
+        <span>Habilidades: ${skillEntries.join(" · ") || "sin habilidades activas del filtro"}</span>
+        <span>Rasgos: ${traitEntries.join(" · ") || "sin rasgos obvios del filtro"}</span>
+        <span>Inventario: ${character.inventory || "sin objetos anotados"}</span>
+        <span>Condiciones: ${character.conditions || "sin condiciones"}</span>
+      </div>
+    </div>
+  `;
 }
 
 function renderEntityList(entries, type) {
@@ -371,7 +515,8 @@ function renderEntityList(entries, type) {
       <span>${getEntitySubtitle(item, type)}</span>
       ${renderEntityMeta(item, type)}
       <div class="entity-actions">
-        ${type !== "object" ? '<button type="button" data-action="damage">-1 vida</button><button type="button" data-action="heal">+1 vida</button><button type="button" data-action="turn">Turno</button>' : ""}
+        ${type !== "object" ? '<button type="button" data-action="damage">-1 vida</button><button type="button" data-action="heal">+1 vida</button><button type="button" data-action="manaDown">-1 mana</button><button type="button" data-action="manaUp">+1 mana</button><button type="button" data-action="turn">Turno</button>' : ""}
+        ${type === "character" ? '<button type="button" data-action="inventory">Objeto</button><button type="button" data-action="condition">Condicion</button><button type="button" data-action="note">Nota</button>' : ""}
         ${type !== "character" ? '<button type="button" data-action="remove">Quitar</button>' : ""}
       </div>
     </div>
@@ -445,7 +590,7 @@ function renderTokens() {
 
   all.forEach(([id, item, type], index) => {
     const token = document.createElement("div");
-    token.className = `token ${type === "enemy" ? "enemy" : ""}`;
+    token.className = `token ${type}`;
     token.textContent = initials(item.name || "?");
     token.style.left = `${10 + (index % 5) * 16}%`;
     token.style.top = `${14 + Math.floor(index / 5) * 18}%`;
@@ -497,7 +642,8 @@ function changeLocalBonus(key, delta) {
 function toggleSkillTraining(key) {
   const current = state.skillTraining[key] || 0;
   if (current > 0) state.skillTraining[key] = 0;
-  else if (getFreeSkillPoints() > 0) state.skillTraining[key] = 1;
+  else if (getFreeSkillPoints() > 0 && getActiveSkillCount() < system.maxActiveSkills) state.skillTraining[key] = 1;
+  else toast(`Maximo ${system.maxActiveSkills} habilidades activas.`);
   refreshCharacterPreview();
 }
 
@@ -507,7 +653,65 @@ function resetCharacterBuild() {
   refreshCharacterPreview();
 }
 
+function isCharacterFinalized() {
+  return state.role === "player" && state.room?.characters?.[state.participantId]?.status === "ready";
+}
+
+function setCharacterEditingMode(finalized) {
+  byId("characterForm").hidden = finalized;
+  byId("finalCharacterCard").hidden = !finalized;
+  byId("saveCharacterButton").hidden = finalized;
+  byId("finalizeCharacterButton").hidden = finalized;
+  ["characterNameInput", "lineageSelect", "classSelect", "backgroundSelect", "hpCurrentInput", "manaCurrentInput", "characterInventoryInput", "characterNotesInput"].forEach((id) => {
+    const element = byId(id);
+    if (element) element.disabled = finalized;
+  });
+}
+
+function renderFinalCharacterCard(character) {
+  const card = byId("finalCharacterCard");
+  if (!character || character.status !== "ready") {
+    card.hidden = true;
+    return;
+  }
+
+  const activeSkills = Object.entries(character.skills || {})
+    .filter(([, value]) => Number(value || 0) > 0)
+    .map(([key]) => getSkillName(key));
+
+  card.innerHTML = `
+    <div class="panel">
+      <p class="eyebrow">Listo / en partida</p>
+      <h2>${character.name || "Sin nombre"}</h2>
+      <p>${character.lineageName} - ${character.className} - ${character.backgroundName}</p>
+      <div class="sheet-summary">
+        <div class="summary-box"><span>Vida</span><strong>${character.hpCurrent}/${character.derived?.hpMax}</strong></div>
+        <div class="summary-box"><span>Mana</span><strong>${character.manaCurrent}/${character.derived?.manaMax}</strong></div>
+        <div class="summary-box"><span>Defensa</span><strong>${character.derived?.defense}</strong></div>
+        <div class="summary-box"><span>Iniciativa</span><strong>${character.derived?.initiative}</strong></div>
+      </div>
+    </div>
+    <div class="panel"><h2>Atributos</h2><div class="entity-meta">${Object.entries(character.attributes || {}).map(([key, value]) => `<span>${getAttributeName(key)}: ${value}</span>`).join("")}</div></div>
+    <div class="panel"><h2>Habilidades activas</h2><div class="entity-meta">${activeSkills.map((name) => `<span>${name}</span>`).join("") || "<span>Ninguna</span>"}</div></div>
+    <div class="panel"><h2>Rasgos</h2><div class="entity-meta">${(character.traitNames || []).map((name) => `<span>${name}</span>`).join("") || "<span>Ninguno</span>"}</div></div>
+    <div class="panel"><h2>Almacenamiento</h2><p>${character.inventory || "Sin objetos anotados."}</p></div>
+    <div class="panel"><h2>Notas</h2><p>${character.notes || "Sin notas."}</p></div>
+  `;
+}
+
 function saveCharacter() {
+  writeCharacter("draft");
+}
+
+function finalizeCharacter() {
+  if (getActiveSkillCount() > system.maxActiveSkills) {
+    toast(`La ficha supera ${system.maxActiveSkills} habilidades activas.`);
+    return;
+  }
+  writeCharacter("ready");
+}
+
+function writeCharacter(status) {
   const totals = getAttributeTotals();
   const derived = calculateDerivedStats();
   const lineageKey = byId("lineageSelect").value;
@@ -517,6 +721,7 @@ function saveCharacter() {
 
   const character = {
     id: state.participantId,
+    status,
     name: byId("characterNameInput").value.trim() || state.participantName,
     playerName: state.participantName,
     lineage: lineageKey,
@@ -535,6 +740,7 @@ function saveCharacter() {
     derived,
     hpCurrent: Number(byId("hpCurrentInput").value || derived.hpMax),
     manaCurrent: Number(byId("manaCurrentInput").value || derived.manaMax),
+    inventory: byId("characterInventoryInput").value.trim(),
     notes: byId("characterNotesInput").value.trim(),
     updatedAt: Date.now()
   };
@@ -543,12 +749,12 @@ function saveCharacter() {
     state.room.characters = state.room.characters || {};
     state.room.characters[state.participantId] = character;
     renderAll();
-    toast("Ficha guardada en esta pantalla.");
+    toast(status === "ready" ? "Personaje listo para la partida." : "Borrador guardado.");
     return;
   }
 
   state.roomRef.child(`characters/${state.participantId}`).set(character);
-  toast("Ficha guardada.");
+  toast(status === "ready" ? "Personaje listo para la partida." : "Borrador guardado.");
 }
 
 function saveScene() {
@@ -595,6 +801,31 @@ function updateEntity(type, id, action) {
     if (state.roomRef) state.roomRef.child("combat").update(combat);
     else {
       state.room.combat = { ...(state.room.combat || {}), ...combat };
+      renderAll();
+    }
+    return;
+  }
+
+  if (action === "inventory" || action === "condition" || action === "note") {
+    const label = action === "inventory" ? "Objeto para agregar" : action === "condition" ? "Condicion para agregar" : "Nota del DM";
+    const value = prompt(label);
+    if (!value) return;
+    const field = action === "inventory" ? "inventory" : action === "condition" ? "conditions" : "dmNotes";
+    const previous = entity[field] || "";
+    const nextValue = previous ? `${previous}\n${value}` : value;
+    if (state.roomRef) state.roomRef.child(`${collection}/${id}/${field}`).set(nextValue);
+    else {
+      state.room[collection][id][field] = nextValue;
+      renderAll();
+    }
+    return;
+  }
+
+  if (action === "manaDown" || action === "manaUp") {
+    const nextMana = Math.max(0, Number(entity.manaCurrent ?? entity.derived?.manaMax ?? 0) + (action === "manaUp" ? 1 : -1));
+    if (state.roomRef) state.roomRef.child(`${collection}/${id}/manaCurrent`).set(nextMana);
+    else {
+      state.room[collection][id].manaCurrent = nextMana;
       renderAll();
     }
     return;
@@ -742,7 +973,7 @@ function getEntityPlural(type) {
 }
 
 function getEntitySubtitle(item, type) {
-  if (type === "character") return `${item.className || "Personaje"} - Vida ${item.hpCurrent ?? "?"}/${item.derived?.hpMax ?? item.hpMax ?? "?"}`;
+  if (type === "character") return `${item.status === "ready" ? "Listo" : "Borrador"} - ${item.className || "Personaje"} - Vida ${item.hpCurrent ?? "?"}/${item.derived?.hpMax ?? item.hpMax ?? "?"} - Mana ${item.manaCurrent ?? "?"}/${item.derived?.manaMax ?? "?"}`;
   if (type === "enemy") return `${item.kind || "Enemigo"} ${item.threat ? `- amenaza ${item.threat}` : ""} - Vida ${item.hpCurrent ?? item.hp ?? "?"}/${item.hpMax ?? item.hp ?? "?"}`;
   if (type === "npc") return `${item.role || "NPC"} ${item.attitude ? `- ${item.attitude}` : ""}`;
   return `${item.kind || "Objeto"} - visible en tablero`;
@@ -756,6 +987,9 @@ function renderEntityMeta(item, type) {
   const lines = [
     item.description,
     statText,
+    type === "character" && item.inventory ? `Inventario: ${item.inventory}` : "",
+    type === "character" && item.conditions ? `Condiciones: ${item.conditions}` : "",
+    type === "character" && item.dmNotes ? `Notas DM: ${item.dmNotes}` : "",
     type !== "character" && item.notes ? `Notas DM: ${item.notes}` : ""
   ].filter(Boolean);
   return lines.length ? `<div class="entity-meta">${lines.map((line) => `<span>${line}</span>`).join("")}</div>` : "";
@@ -805,7 +1039,16 @@ function getFreePoints() {
 
 function getFreeSkillPoints() {
   const spent = Object.values(state.skillTraining).reduce((sum, value) => sum + Number(value || 0), 0);
-  return Math.max(0, system.freeSkillPoints - spent);
+  const lineage = system.lineages[byId("lineageSelect").value] || system.lineages.human;
+  return Math.max(0, system.freeSkillPoints + Number(lineage.extraSkillPoints || 0) - spent);
+}
+
+function getActiveSkillCount() {
+  const active = new Set([...getGrantedSkills()]);
+  Object.entries(state.skillTraining).forEach(([key, value]) => {
+    if (Number(value || 0) > 0) active.add(key);
+  });
+  return active.size;
 }
 
 function calculateDerivedStats() {
@@ -849,6 +1092,18 @@ function emptyAttributeMap() {
 
 function emptySkillMap() {
   return Object.fromEntries((window.MESA_ARCANA_SYSTEM?.skills || []).map((skill) => [skill.key, 0]));
+}
+
+function getFocusFilter(key) {
+  const filters = {
+    social: { name: "Social", attributes: ["presencia", "intelecto"], skills: ["persuasion", "deception", "intimidation"] },
+    sigilo: { name: "Sigilo", attributes: ["agilidad", "intelecto", "percepcion"], skills: ["stealth", "locks"] },
+    combate: { name: "Combate", attributes: ["fuerza", "agilidad", "resistencia"], skills: ["melee", "archery", "defense"] },
+    exploracion: { name: "Exploracion", attributes: ["percepcion", "intelecto", "agilidad"], skills: ["investigation", "fine_perception", "tracking", "survival"] },
+    misterio: { name: "Arcano/Misterio", attributes: ["afinidad", "intelecto", "voluntad"], skills: ["arcana", "concentration"] },
+    supervivencia: { name: "Resistencia/Supervivencia", attributes: ["resistencia", "voluntad", "percepcion"], skills: ["survival", "medicine", "defense"] }
+  };
+  return filters[key] || filters.social;
 }
 
 function copyRoomCode() {

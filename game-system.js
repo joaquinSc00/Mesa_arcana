@@ -45,7 +45,7 @@ window.MESA_ARCANA_SYSTEM = {
   },
 
   lineages: {
-    human: { name: "Humano", bonuses: { fuerza: 1, agilidad: 1, resistencia: 1, intelecto: 1, voluntad: 1, presencia: 1, percepcion: 1, afinidad: 1 }, skills: ["persuasion"], traits: ["adaptable"], affinities: ["social", "exploracion"] },
+    human: { name: "Humano", bonuses: { fuerza: 1, agilidad: 1, resistencia: 1, intelecto: 1, voluntad: 1, presencia: 1, percepcion: 1, afinidad: 1 }, skills: ["persuasion"], extraSkillPoints: 1, traits: ["adaptable"], affinities: ["social", "exploracion"] },
     elf: { name: "Elfo astral", bonuses: { agilidad: 2, intelecto: 1, voluntad: 1, percepcion: 1, afinidad: 2 }, skills: ["arcana", "fine_perception"], traits: ["ancient_blood"], affinities: ["misterio", "exploracion"] },
     dwarf: { name: "Enano ferrico", bonuses: { fuerza: 2, resistencia: 2, intelecto: 1, voluntad: 1 }, skills: ["defense"], traits: ["stone_endurance"], affinities: ["combate", "apoyo"] },
     spark_goblin: { name: "Duende de chispa", bonuses: { agilidad: 2, intelecto: 1, presencia: 1, percepcion: 1, afinidad: 1 }, skills: ["stealth", "locks"], traits: ["quick_hand"], affinities: ["sigilo", "misterio"] },
@@ -92,7 +92,7 @@ window.MESA_ARCANA_SYSTEM = {
       { name: "Acolito lunar", type: "Cultista", threat: "media", hp: 18, stats: { fuerza: 3, agilidad: 4, resistencia: 5, percepcion: 6, afinidad: 8 }, description: "Canaliza rituales menores y palabras extrañas.", notes: "Puede abrir una puerta o apagar luces." },
       { name: "Araña de vidrio", type: "Bestia arcana", threat: "media", hp: 20, stats: { fuerza: 5, agilidad: 8, resistencia: 5, percepcion: 7, afinidad: 4 }, description: "Cuerpo translucido, patas afiladas y paciencia.", notes: "Ideal para techos y pasillos." },
       { name: "Caballero hueco", type: "Armadura", threat: "media", hp: 26, stats: { fuerza: 8, agilidad: 3, resistencia: 9, percepcion: 3, afinidad: 3 }, description: "Armadura vacia movida por juramento roto.", notes: "Lento, frontal, imponente." },
-      { name: "Cazador de reliquias", type: "Humanoide", threat: "media", hp: 19, stats: { fuerza: 5, agilidad: 8, resistencia: 5, percepcion: 8 }, description: "Busca objetos raros y no pelea limpio.", notes: "Puede negociar si gana algo." },
+      { name: "Cazador de reliquias", type: "Humanoide", threat: "media", hp: 19, stats: { fuerza: 5, agilidad: 8, resistencia: 5, percepcion: 8 }, description: "Busca objetos raros y no pelea limpio.", notes: "Puede negociar si ve una oportunidad." },
       { name: "Dragon menor ceniciento", type: "Dragon", threat: "alta", hp: 48, stats: { fuerza: 12, agilidad: 8, resistencia: 11, percepcion: 9, afinidad: 7 }, description: "Joven, arrogante y cubierto de escamas grises.", notes: "No regalar victoria automatica; narrar consecuencias." },
       { name: "Bruja de sal", type: "Hechicera", threat: "alta", hp: 34, stats: { fuerza: 3, agilidad: 5, resistencia: 7, percepcion: 9, afinidad: 12 }, description: "Vende favores que siempre cobran intereses.", notes: "Mejor como amenaza social y arcana." },
       { name: "Golem fracturado", type: "Constructo", threat: "alta", hp: 55, stats: { fuerza: 13, agilidad: 2, resistencia: 14, percepcion: 4, afinidad: 6 }, description: "Obedece ordenes antiguas a medias.", notes: "Sus grietas pueden ser pista." },
@@ -107,12 +107,12 @@ window.MESA_ARCANA_SYSTEM = {
       { name: "Capitana Ivara", role: "Guardia", attitude: "Autoritaria", description: "Prioriza orden antes que justicia.", secrets: "Esta presionada por una deuda politica.", stats: { presencia: 8, fuerza: 7, percepcion: 6 } }
     ],
     objects: [
-      { name: "Monedas", type: "Recompensa", description: "Bolsa, cofre pequeño o pago improvisado.", notes: "Cantidad decidida por el DM." },
+      { name: "Monedas", type: "Botin", description: "Bolsa, cofre pequeño o pago improvisado.", notes: "Cantidad decidida por el DM." },
       { name: "Arma", type: "Equipo", description: "Carta generica para espada, arco, daga o arma rara.", notes: "Definir detalles en mesa." },
       { name: "Pocion", type: "Consumible", description: "Frasco de efecto util, dudoso o peligroso.", notes: "El DM decide efecto y dosis." },
       { name: "Llave", type: "Acceso", description: "Abre algo, simbolicamente o literalmente.", notes: "Puede ser pista, permiso o trampa." },
       { name: "Puerta oculta", type: "Escena", description: "Entrada secreta, pared falsa o sello camuflado.", notes: "Mostrar cuando el DM quiera revelarla." },
-      { name: "Cofre", type: "Contenedor", description: "Puede contener recompensa, pista o problema.", notes: "No abrir automaticamente." },
+      { name: "Cofre", type: "Contenedor", description: "Puede contener monedas, pista o problema.", notes: "No abrir automaticamente." },
       { name: "Pergamino", type: "Pista", description: "Mensaje, mapa, contrato, hechizo o advertencia.", notes: "Texto manual por el DM." },
       { name: "Objeto magico", type: "Misterio", description: "Reliquia menor, foco arcano o artefacto raro.", notes: "Efecto sin automatizar." },
       { name: "Trampa", type: "Peligro", description: "Mecanismo, runa, veneno o alarma.", notes: "El DM decide activacion y consecuencia." },
@@ -121,8 +121,9 @@ window.MESA_ARCANA_SYSTEM = {
   },
 
   baseAttribute: 4,
-  freeAttributePoints: 10,
-  freeSkillPoints: 4,
+  freeAttributePoints: 6,
+  freeSkillPoints: 2,
+  maxActiveSkills: 6,
   skillTrainingBonus: 2,
   difficultyTargets: { baja: 10, media: 14, alta: 18, variable: null }
 };

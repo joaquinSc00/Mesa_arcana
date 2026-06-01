@@ -90,6 +90,16 @@
             </button>
           </form>
         </div>
+        <div class="panel active-rooms-panel">
+          <div class="section-header compact-header">
+            <div>
+              <p class="eyebrow">Firebase</p>
+              <h2>Salas activas</h2>
+            </div>
+            <button class="secondary-button" id="refreshRoomsButton" type="button">Actualizar</button>
+          </div>
+          <div class="entity-list" id="activeRoomsList"></div>
+        </div>
       </section>
 
       <section class="view" id="playerView" aria-labelledby="playerTitle">
@@ -114,7 +124,11 @@
               </div>
               <button class="secondary-button" id="saveCharacterButton" type="button">
                 <span data-icon="save"></span>
-                Guardar
+                Guardar borrador
+              </button>
+              <button class="primary-button" id="finalizeCharacterButton" type="button">
+                <span data-icon="send"></span>
+                Entrar a la partida
               </button>
             </div>
 
@@ -143,7 +157,7 @@
                 <div class="points-row">
                   <div>
                     <span>Puntos libres</span>
-                    <strong id="freePointsValue">10</strong>
+                    <strong id="freePointsValue">6</strong>
                   </div>
                   <button class="ghost-button" id="resetAttributesButton" type="button">
                     <span data-icon="rotate-ccw"></span>
@@ -184,10 +198,17 @@
                 <div class="points-row">
                   <div>
                     <span>Puntos de habilidad</span>
-                    <strong id="skillPointsValue">4</strong>
+                    <strong id="skillPointsValue">2</strong>
                   </div>
                 </div>
                 <div class="skills-grid" id="skillsGrid"></div>
+              </div>
+
+              <div class="panel inventory-panel">
+                <label>
+                  Almacenamiento / inventario
+                  <textarea id="characterInventoryInput" rows="6" placeholder="Monedas, armas, pociones, llaves, cartas o cosas que el DM entregue manualmente..."></textarea>
+                </label>
               </div>
 
               <div class="panel notes-panel">
@@ -197,6 +218,7 @@
                 </label>
               </div>
             </form>
+            <section class="final-character-card" id="finalCharacterCard" hidden></section>
           </div>
         </div>
       </section>
@@ -216,6 +238,19 @@
               <span data-icon="skip-forward"></span>
               Siguiente
             </button>
+            <div class="panel compact-panel">
+              <h2>Turno actual</h2>
+              <div id="dmTurnFocus"></div>
+              <div class="library-tabs dm-focus-tabs" role="tablist" aria-label="Filtro de consulta">
+                <button class="ghost-button active" type="button" data-focus-filter="social">Social</button>
+                <button class="ghost-button" type="button" data-focus-filter="sigilo">Sigilo</button>
+                <button class="ghost-button" type="button" data-focus-filter="combate">Combate</button>
+                <button class="ghost-button" type="button" data-focus-filter="exploracion">Exploracion</button>
+                <button class="ghost-button" type="button" data-focus-filter="misterio">Arcano</button>
+                <button class="ghost-button" type="button" data-focus-filter="supervivencia">Resistencia</button>
+              </div>
+              <div id="dmFocusDetails"></div>
+            </div>
           </aside>
 
           <div class="content-stack">
