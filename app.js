@@ -53,6 +53,7 @@ function init() {
   hydrateIcons();
   fillSelects();
   bindEvents();
+  window.MesaArcanaMap.init();
   setupCollapsiblePanels();
 
   const params = new URLSearchParams(window.location.search);
@@ -692,10 +693,28 @@ function renderBoard() {
   byId("playerSceneDescription").textContent = scene.description || "El director todavia no mostro una escena.";
 
   renderTokens();
+  window.MesaArcanaMap.sync(state.room, writeMap);
+  if (state.role === "dm" && state.room.map?.enabled && state.room.map.fog) window.MesaArcanaMap.reveal();
   renderRolls();
   // Reutilizar la vista de tiradas ya existente sin agregar consultas a Firebase.
   const dmFeed = byId("dmRollFeed");
   if (dmFeed) dmFeed.replaceChildren(...Array.from(byId("rollFeed").children, node => node.cloneNode(true)));
+}
+
+function writeMap(patch) {
+  if (!state.room) return;
+  if (state.roomRef) {
+    state.roomRef.child("map").update(patch).catch(() => toast("No se pudo guardar el mapa."));
+    return;
+  }
+  state.room.map ||= {};
+  for (const [path, value] of Object.entries(patch)) {
+    const segments = path.split("/");
+    let target = state.room.map;
+    for (const segment of segments.slice(0, -1)) target = target[segment] ||= {};
+    target[segments.at(-1)] = value;
+  }
+  renderBoard();
 }
 
 function renderTokens() {

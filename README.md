@@ -24,6 +24,9 @@ https://joaquinsc00.github.io/Mesa_arcana/
 - Consultar atributos con d20.
 - Sincronizar datos entre dispositivos con Firebase.
 - Mostrar escena publica en el tablero.
+- Cargar una imagen de mapa optimizada (hasta 200 KB codificados) para compartirla en la sala.
+- Ajustar cuadricula, alinear casillas, mover fichas, controlar vision y niebla de guerra desde el DM.
+- Ver el mapa sincronizado en el tablero, ocultarlo temporalmente o exportar la vista del DM a PNG.
 - Usar una biblioteca inicial de enemigos, NPCs y objetos.
 - Hacer aparecer o quitar tarjetas manualmente.
 - Modificar vida y mana desde el panel del DM.
@@ -80,6 +83,7 @@ El director controla la mesa desde un panel privado. Puede preparar y mostrar in
 Puede:
 
 - cambiar la escena publica;
+- gestionar la cartografia desde En vivo > Escena y tablero (imagen, casillas, fichas, niebla y vision);
 - ver personajes en borrador y personajes listos;
 - modificar vida de personajes y enemigos;
 - modificar mana de personajes;
@@ -111,6 +115,7 @@ Puede mostrar:
 - objetos visibles;
 - turno actual;
 - tiradas recientes.
+- mapa publico con areas exploradas, cuando el DM carga una imagen y lo muestra.
 
 No interpreta la partida. Si un enemigo muere, el DM lo quita. Si aparece un objeto, el DM lo muestra. Si alguien recibe algo, el DM lo agrega manualmente.
 

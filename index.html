@@ -8,7 +8,7 @@
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="preconnect" href="https://www.gstatic.com">
   <link rel="stylesheet" href="styles.css">
-  <link rel="stylesheet" href="v3-ui.css?v=2">
+  <link rel="stylesheet" href="v3-ui.css?v=3">
 </head>
 <body>
   <div class="app-shell">
@@ -356,6 +356,40 @@
                 </label>
               </form>
 
+              <section class="panel map-panel" data-dm-section="scene" aria-label="Cartografia">
+                <h2>Cartografia</h2>
+                <div class="map-controls">
+                  <label>Imagen del mapa <input id="mapFile" type="file" accept="image/*"></label>
+                  <div class="map-actions">
+                    <button class="secondary-button" id="mapFit" type="button">Ajustar</button>
+                    <button class="secondary-button" id="mapZoomIn" type="button" aria-label="Acercar mapa">Zoom +</button>
+                    <button class="secondary-button" id="mapZoomOut" type="button" aria-label="Alejar mapa">Zoom -</button>
+                    <button class="secondary-button" id="mapExport" type="button">Exportar PNG</button>
+                    <button class="secondary-button" id="mapResetFog" type="button">Reiniciar niebla</button>
+                    <button class="secondary-button" id="mapToggle" type="button">Ocultar mapa publico</button>
+                  </div>
+                  <details><summary>Cuadricula y alineacion</summary>
+                    <div class="map-fields">
+                      <label>Ancho de casilla<input id="mapCellWidth" type="number" min="16" max="250" value="60"></label>
+                      <label>Alto de casilla<input id="mapCellHeight" type="number" min="16" max="250" value="60"></label>
+                      <label>Desfase X<input id="mapOffsetX" type="number" min="-250" max="250" value="0"></label>
+                      <label>Desfase Y<input id="mapOffsetY" type="number" min="-250" max="250" value="0"></label>
+                    </div>
+                    <label class="map-check"><input id="mapGrid" type="checkbox" checked> Mostrar cuadricula</label>
+                    <label class="map-check"><input id="mapPublicGrid" type="checkbox" checked> Cuadricula publica</label>
+                    <button class="secondary-button" id="mapAlign" type="button" aria-pressed="false">Alinear arrastrando</button>
+                  </details>
+                  <details><summary>Fichas y vision</summary>
+                    <div id="mapTokenList" class="map-token-list"></div>
+                    <label>Vision en casillas<input id="mapVision" type="number" min="0" max="20" value="3"></label>
+                    <label class="map-check"><input id="mapFog" type="checkbox"> Niebla de guerra</label>
+                    <label class="map-check"><input id="mapVisionOutline" type="checkbox"> Perimetro de vision</label>
+                  </details>
+                </div>
+                <div class="map-stage" id="dmMapStage"><canvas id="dmMapCanvas" aria-label="Mapa editable por el director"></canvas></div>
+                <p class="map-hint">Selecciona una ficha y toca una casilla para moverla. Arrastra el fondo para desplazar; usa la rueda para acercar.</p>
+              </section>
+
               <div class="panel collapsible-panel" data-dm-section="characters actors">
                 <h2>Personajes</h2>
                 <div class="entity-list" id="dmCharactersList"></div>
@@ -415,6 +449,7 @@
             <div class="board-stage" id="boardStage">
               <div class="stage-grid"></div>
               <div class="token-layer" id="boardTokens"></div>
+              <canvas id="publicMapCanvas" class="public-map-canvas" aria-label="Mapa de la partida"></canvas>
             </div>
           </div>
 
@@ -438,7 +473,8 @@
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
   <script src="firebase-config.js"></script>
   <script src="game-system.js"></script>
-  <script src="app.js?v=2"></script>
+  <script src="map.js?v=1"></script>
+  <script src="app.js?v=3"></script>
   <script src="v3-ui.js?v=2"></script>
 </body>
 </html>
