@@ -1,4 +1,4 @@
-window.MESA_ARCANA_FIREBASE_CONFIG = {
+export const firebaseConfig = {
   apiKey: "AIzaSyDQtlje0lT72YQh1436h9rtNkViI6QRb-o",
   authDomain: "seguimiento-tps.firebaseapp.com",
   projectId: "seguimiento-tps",
@@ -9,4 +9,4 @@ window.MESA_ARCANA_FIREBASE_CONFIG = {
   databaseURL: "https://seguimiento-tps-default-rtdb.firebaseio.com"
 };
 
-window.MESA_ARCANA_ROOT = "mesaArcana/rooms";
+export const ROOT_PATH = "mesaArcana/rooms";

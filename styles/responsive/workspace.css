@@ -1,0 +1,81 @@
+@media (max-width: 1080px) {
+  #playerView .workspace,
+  #dmView .workspace {
+    grid-template-columns: 184px minmax(0, 1fr);
+    gap: 18px;
+  }
+
+  #playerView .character-sheet,
+  #dmView .dm-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .player-extra .quick-rolls {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 760px) {
+  #playerView .workspace,
+  #dmView .workspace {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+
+  .workspace-rail {
+    position: static;
+    max-height: none;
+    overflow: visible;
+    padding: 14px 0 2px;
+    border-right: 0;
+    border-bottom: 1px solid rgba(217, 185, 128, 0.18);
+  }
+
+  .workspace-rail .room-card,
+  .workspace-rail .turn-card {
+    display: none;
+  }
+
+  .workspace-nav,
+  .workspace-nav [data-dm-nav-group] {
+    display: flex;
+    gap: 6px;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .workspace-nav-button {
+    flex: none;
+    width: auto;
+    white-space: nowrap;
+  }
+
+  .nav-caption {
+    display: none;
+  }
+
+  .mode-switch {
+    max-width: 280px;
+  }
+
+  #playerView .content-stack,
+  #dmView .content-stack {
+    padding-top: 18px;
+  }
+
+  .final-character-card,
+  .sheet-summary {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 480px) {
+  #playerView .vitality-panel .collapsible-content {
+    grid-template-columns: 1fr;
+  }
+
+  .player-extra .quick-rolls,
+  .dm-focus-tabs {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}

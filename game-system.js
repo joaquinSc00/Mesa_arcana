@@ -1,4 +1,4 @@
-window.MESA_ARCANA_SYSTEM = {
+export const system = {
   attributes: [
     { key: "fuerza", name: "Fuerza", hint: "Golpes, cargar peso, romper cosas y armas pesadas.", uses: ["romper", "cargar", "intimidar", "atacar_cuerpo"] },
     { key: "agilidad", name: "Agilidad", hint: "Esquivar, moverse, trepar, sigilo y reflejos.", uses: ["sigilo", "trepar", "robar", "arqueria", "iniciativa"] },

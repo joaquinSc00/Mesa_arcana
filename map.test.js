@@ -1,7 +1,6 @@
-const test = require("node:test");
-const assert = require("node:assert/strict");
-const fs = require("node:fs");
-const vm = require("node:vm");
+import test from "node:test";
+import assert from "node:assert/strict";
+import { createMap } from "./map.js";
 
 function setup() {
   const elements = new Map();
@@ -21,8 +20,7 @@ function setup() {
     getElementById: element,
     createElement: () => ({ addEventListener() {} })
   };
-  vm.runInNewContext(fs.readFileSync("map.js", "utf8"), { window, document });
-  return { map: window.MesaArcanaMap, element };
+  return { map: createMap({ window, document }), element };
 }
 
 test("a room without a map preserves the original public board", () => {

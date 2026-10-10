@@ -1,4 +1,5 @@
-window.MesaArcanaMap = (() => {
+export function createMap({ document = globalThis.document, window = globalThis.window,
+  ResizeObserver = globalThis.ResizeObserver, Image = globalThis.Image } = {}) {
   const $ = (id) => document.getElementById(id);
   const defaults = { width: 900, height: 650, cellWidth: 60, cellHeight: 60, offsetX: 0, offsetY: 0, grid: true, publicGrid: true, fog: false, visionOutline: false };
   const view = { dm: { zoom: 1, x: 0, y: 0, fitted: false }, public: { zoom: 1, x: 0, y: 0, fitted: false } };
@@ -298,4 +299,4 @@ window.MesaArcanaMap = (() => {
   }
 
   return { init, sync, reveal, fit };
-})();
+}

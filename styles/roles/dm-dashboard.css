@@ -1,0 +1,113 @@
+/* V4 — organización funcional sin pantallas saturadas */
+#dmView .dm-grid>[data-dm-section="table"]{grid-column:1/-1}
+#dmView .dm-grid>[data-dm-section="combat"]{grid-column:1/-1}
+#dmView .dm-grid>[data-dm-section="rolls"]{grid-column:1/-1}
+#dmView .dm-grid>[data-dm-section="adventure"],#dmView .dm-grid>[data-dm-section="world"],#dmView .dm-grid>[data-dm-section="settings"]{grid-column:1/-1}
+#dmView .home-summary{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;padding:17px 18px 0}
+#dmView .summary-tile{border:1px solid #d9b88030;background:#12192b;border-radius:11px;padding:14px;min-width:0}
+#dmView .summary-tile span{color:#b7b8c6;font-size:11px;letter-spacing:.04em;display:block}
+#dmView .summary-tile strong{display:block;font:600 17px Georgia,serif;color:#f4e5cc;margin-top:8px;overflow-wrap:anywhere}
+#dmView .quiet-hint{color:#b6bac9;font-size:13px;line-height:1.6;margin:0 0 14px}
+#dmView .dm-table-panel>.quiet-hint{margin:16px 18px 5px}
+#dmView .shortcut-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:11px;padding:14px 18px 18px}
+#dmView .shortcut{display:flex;flex-direction:column;align-items:flex-start;text-align:left;gap:5px;padding:16px;background:#131a2b;border:1px solid #d9b8802e;border-radius:12px;color:#e8d4b1;min-height:76px}
+#dmView .shortcut span{font-size:12px;color:#aeb1c1}
+#dmView .shortcut:hover{border-color:#d9b8809c;background:#242538}
+#dmView .panel-interior{padding:18px}
+#dmView .panel-interior>.turn-card{margin-top:14px}
+#dmView .dm-order{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+#dmView .order-person{padding:8px 12px;border-radius:9px;border:1px solid #ffffff22;color:#c0c2d0;background:#101828;font-size:12px}
+#dmView .order-person.active{border-color:#d9b880;color:#f5dfb9}
+#dmView .roll-feed{max-height:60vh;overflow-y:auto}
+#dmView .future-tag{font-size:9px;letter-spacing:.01em;color:#aeb2c2;font-weight:400;margin-left:5px}
+#dmView .workspace-nav-button{display:flex;align-items:center;flex-wrap:wrap;gap:2px}
+#dmView .dm-grid>.panel[data-dm-section="combat"]>h2,#dmView .dm-grid>.panel[data-dm-section="rolls"]>h2,#dmView .dm-grid>.panel[data-dm-section="adventure"]>h2,#dmView .dm-grid>.panel[data-dm-section="world"]>h2,#dmView .dm-grid>.panel[data-dm-section="settings"]>h2{background:linear-gradient(92deg,#6a5237,#987650 55%,#4d4037);border-bottom:1px solid #e9c38844;color:#fff4e4;font:600 14px Georgia,serif;text-transform:uppercase;letter-spacing:.05em;margin:0;padding:12px 16px;min-height:43px}
+@media(max-width:1100px){#dmView .home-summary{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:620px){#dmView .shortcut-grid{grid-template-columns:1fr}#dmView .summary-tile{padding:11px}#dmView .summary-tile strong{font-size:14px}}
+
+/* Mesa Arcana DM V5 · capa visual contextual */
+#dmView .dm-command-bar{display:flex;align-items:center;gap:10px;padding:10px 12px;background:#171c2e;border:1px solid #c4a16a42;border-radius:13px;flex-wrap:wrap}
+#dmView .dm-command-copy{display:flex;gap:8px;align-items:center;color:#e8d7b9;font:600 13px Georgia,serif;white-space:nowrap}
+#dmView .dm-status-dot{width:8px;height:8px;border-radius:50%;background:#7ccda0;box-shadow:0 0 10px #7ccda077}
+#dmView .dm-search-label{flex:1;min-width:180px;position:relative;display:flex;align-items:center}
+#dmView .dm-search-label span{position:absolute;left:12px;color:#d6b57c;font-size:21px}
+#dmView .dm-search-label input{padding-left:37px;height:40px;background:#0e1423;border-color:#ffffff23}
+#dmView .dm-command-bar button{min-height:39px;white-space:nowrap}
+#dmView .dm-inspector-backdrop:not([hidden]){position:fixed;inset:0;background:#05071386;z-index:30}
+#dmView .dm-inspector{position:fixed;right:0;top:0;bottom:0;width:min(430px,100vw);transform:translateX(105%);transition:transform .22s ease;z-index:31;background:linear-gradient(155deg,#25293c,#131829);border-left:1px solid #e2bf8b55;box-shadow:-24px 0 65px #02040999;display:flex;flex-direction:column}
+#dmView .dm-inspector.is-open{transform:translateX(0)}
+#dmView .dm-inspector-head{min-height:54px;display:flex;align-items:center;justify-content:space-between;gap:10px;background:linear-gradient(90deg,#715437,#9d7950,#483b32);color:#ffedce;padding:10px 17px;font:bold 12px Georgia,serif;letter-spacing:.08em}
+#dmView .dm-inspector-close{color:#fff;background:#0c0e1b55;border-radius:8px;min-width:32px;min-height:32px;font-size:24px}
+#dmView .dm-inspector-body{padding:22px;overflow:auto;display:flex;flex-direction:column;gap:16px}
+#dmView .dm-actor-identity{display:flex;align-items:center;gap:14px}
+#dmView .dm-avatar{flex-shrink:0;width:68px;height:68px;border-radius:50%;border:2px solid #d9b8808a;display:grid;place-items:center;background:radial-gradient(circle at 30% 20%,#6a5946,#161b2e);color:#ffe5b2;font:700 24px Georgia,serif}
+#dmView .dm-actor-identity h2{margin:0 0 4px;font:500 23px Georgia,serif}
+#dmView .dm-actor-identity small{color:#bbb9c6}
+#dmView .dm-inspector-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}
+#dmView .dm-stat{border:1px solid #d9b88036;border-radius:12px;padding:12px 7px;text-align:center;background:#101728}
+#dmView .dm-stat span{display:block;color:#b5b2c0;font-size:11px}
+#dmView .dm-stat strong{display:block;font:600 20px Georgia,serif;color:#ead6b2;margin-top:4px;overflow-wrap:anywhere}
+#dmView .dm-inspector-body h3{font:600 14px Georgia,serif;margin:3px 0 -6px;color:#e4c18a}
+#dmView .dm-inspector-actions{display:flex;gap:8px;flex-wrap:wrap}
+#dmView .dm-inspector-action{padding:10px 12px;border:1px solid #c4a16a66;border-radius:9px;background:#2a2a3b;color:#f3e7d3}
+#dmView .dm-inspector-action:hover{background:#554738}
+#dmView .dm-actor-information{padding:12px;background:#12182b;border:1px solid #ffffff18;border-radius:10px;color:#e3dfdf;display:grid;gap:10px}
+#dmView .dm-actor-information p{margin:3px 0;white-space:pre-wrap;overflow-wrap:anywhere}
+#dmView .dm-actor-information small{font-size:11px;color:#cba872;text-transform:uppercase}
+#dmView .dm-actor-extra{border:1px solid #ffffff21;border-radius:10px;padding:12px;color:#cbc7d1}
+#dmView .dm-actor-extra summary{cursor:pointer;color:#f4e3c8}
+#dmView .dm-actor-extra p{margin:6px 0}
+#dmView .dm-inspector-empty{color:#bfbaca;line-height:1.7}
+#dmView .entity-item[data-entity-id]>.entity-actions{display:none!important}
+#dmView .entity-item[data-entity-id]::after{content:'Abrir inspector ↗';color:#d8b57d;font-size:11px}
+#dmView .entity-item[data-entity-id]{transition:.15s;border-color:#ffffff1a}
+#dmView .entity-item[data-entity-id]:hover{border-color:#d9b8808a;background:#25283b}
+#dmView.dm-minimal .workspace-rail{display:none}
+#dmView.dm-minimal .workspace{grid-template-columns:minmax(0,1fr);max-width:1500px}
+#dmView .dm-table-panel{max-width:none}
+@media(max-width:740px){#dmView .dm-command-copy{display:none}#dmView .dm-command-bar{padding:8px}#dmView .dm-inspector-body{padding:15px}}
+
+/* DM V6: retratos de clase, equipo de aventureros y herramientas compactas */
+#dmView .dm-party-heading{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:20px 18px 10px;color:#dfc18b;font:600 12px Georgia,serif;letter-spacing:.12em}
+#dmView .dm-party-heading button{min-height:32px;font:12px system-ui;color:#e3cfae;border-color:#d7b77c44}
+#dmView .dm-party-roster{display:grid;grid-template-columns:repeat(auto-fill,minmax(215px,1fr));gap:10px;padding:0 18px 12px}
+#dmView .dm-roster-card{display:flex;align-items:center;gap:11px;text-align:left;padding:12px;border:1px solid #b5966040;border-radius:13px;color:#f0e5d8;background:linear-gradient(135deg,#1f293b,#141a2a);min-width:0;transition:background .15s,border-color .15s}
+#dmView .dm-roster-card:hover,#dmView .dm-actor-card:hover{background:#293147;border-color:#d9b880a0}
+#dmView .dm-avatar-art{display:inline-grid;place-items:center;flex-shrink:0;width:52px;height:52px;border-radius:14px;border:1px solid #dab77a66;background:radial-gradient(circle at 30% 20%,#66543f,#222638 75%);box-shadow:inset 0 1px #ffffff21,0 5px 13px #0006;font-size:27px}
+#dmView .dm-avatar-art span{filter:drop-shadow(0 2px 3px #0009)}
+#dmView .dm-avatar-enemy{background:radial-gradient(circle at 30% 20%,#7a3a3b,#2c1b29 78%);border-color:#d57c756e}
+#dmView .dm-avatar-npc{background:radial-gradient(circle at 30% 20%,#405a7a,#1d253c 78%);border-color:#8faed36e}
+#dmView .dm-avatar-object{background:radial-gradient(circle at 30% 20%,#807044,#302b22 78%)}
+#dmView .dm-roster-copy{display:flex;min-width:0;flex:1;flex-direction:column;gap:4px}
+#dmView .dm-roster-copy strong,#dmView .dm-card-copy strong{font:600 15px Georgia,serif;color:#fbecda;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#dmView .dm-roster-copy small{font:11px system-ui;color:#b6bbce;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#dmView .dm-resource-track{display:block;height:4px;border-radius:5px;overflow:hidden;background:#5a3640;margin-top:4px}
+#dmView .dm-resource-track i{display:block;height:100%;background:#87caa3;border-radius:inherit}
+#dmView .dm-roster-open,#dmView .dm-card-arrow{font-size:20px;color:#d6b17b;opacity:.8}
+#dmView .dm-card-identity{display:flex;align-items:center;gap:12px;min-width:0}
+#dmView .dm-card-copy{display:flex;flex:1;flex-direction:column;gap:4px;min-width:0}
+#dmView .dm-card-copy>span{color:#bcbac7;font-size:12px;line-height:1.4}
+#dmView .dm-actor-card{padding:14px!important}
+#dmView .dm-actor-card::after{display:none}
+#dmView .dm-actor-card .entity-meta{margin:10px 0 0 64px}
+#dmView .dm-avatar-symbol{font-size:33px}
+#dmView .dm-avatar{border-radius:17px}
+#dmView .dm-combat-tip{margin:12px 0 0;color:#b4aec0;font-size:12px}
+#dmView .order-person{cursor:pointer}
+#dmView .dm-preference-card{padding:17px;margin-bottom:15px;border:1px solid #c7a46b44;background:#12192b;border-radius:13px}
+#dmView .dm-preference-card h3{font:600 17px Georgia,serif;color:#ead6b2;margin:0 0 14px}
+#dmView .dm-check{display:flex;align-items:center;gap:10px;margin:12px 0;color:#ded8cc;font-size:13px}
+#dmView .dm-check input{width:18px;height:18px;accent-color:#c9a56f}
+#dmView.dm-cards-compact .dm-actor-card{padding:9px!important}
+#dmView.dm-cards-compact .dm-actor-card .dm-avatar-art{width:38px;height:38px;font-size:20px}
+#dmView.dm-cards-compact .dm-actor-card .entity-meta{display:none}
+#dmView.dm-hide-descriptions .dm-actor-card .entity-meta{display:none}
+#dmView .dm-inspector .dm-actor-identity .dm-avatar-enemy{background:radial-gradient(circle at 30% 20%,#7a3a3b,#2c1b29 78%)}
+#dmView .dm-inspector .dm-actor-identity .dm-avatar-npc{background:radial-gradient(circle at 30% 20%,#405a7a,#1d253c 78%)}
+@media(max-width:620px){#dmView .dm-party-roster{grid-template-columns:1fr}#dmView .dm-party-heading{flex-wrap:wrap}}
+
+/* Retratos personalizados V7: DM; no afectan a las fichas sin foto. */
+#dmView .dm-avatar-art,#dmView .dm-avatar{overflow:hidden}
+#dmView .dm-custom-avatar{display:block;width:100%;height:100%;object-fit:cover;border-radius:inherit}
+#dmView .dm-avatar-actions{display:flex;flex-wrap:wrap;gap:8px}
+#dmView .dm-avatar-help{font-size:11px;color:#b4b8c9;margin:-8px 0 0}

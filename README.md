@@ -4,6 +4,8 @@ Mesa Arcana es una web para jugar una mesa de rol casera y presencial usando var
 
 La plataforma no reemplaza al DM. No decide si una accion sale bien o mal, no entrega recompensas, no cierra combates y no resuelve la historia. Funciona como ficha digital, anotador, tablero visual, organizador de turnos y mesa de control manual.
 
+La estructura modular, el arbol completo, los contratos publicos y las instrucciones para reemplazar una parte estan en [docs/MODULOS.md](docs/MODULOS.md). Las pruebas de reglas y acciones se ejecutan con `npm test`; las pruebas integradas de los tres roles estan en `tests/browser.html`, servidas por HTTP.
+
 ## Link publicado
 
 ```text

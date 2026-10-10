@@ -1,0 +1,33 @@
+/* Ventanas del prototipo V3: título en una banda bronce y contenido libre */
+#dmView .dm-grid>.panel,#playerView .character-sheet>.panel,#playerView .character-sheet>.portrait-card,#playerView .player-extra{padding:0!important;gap:0!important}
+#dmView .dm-grid>.panel>h2,#playerView .character-sheet>.panel>h2,#playerView .player-extra>h2{background:linear-gradient(92deg,#6a5237,#987650 55%,#4d4037);border-bottom:1px solid #e9c38844;color:#fff4e4;font:600 14px Georgia,serif;text-transform:uppercase;letter-spacing:.05em;margin:0;padding:12px 16px;min-height:43px;display:flex;align-items:center;justify-content:space-between}
+#playerView .character-sheet>.portrait-card{padding:19px!important;gap:13px!important}
+#dmView .dm-grid>.panel>.collapsible-content,#playerView .character-sheet>.panel>.collapsible-content{padding:18px}
+#dmView .dm-grid>.panel:not(.collapsible-panel)>:not(h2),#playerView .player-extra>:not(h2),#playerView .character-sheet>.panel:not(.collapsible-panel)>:not(h2){margin-left:18px;margin-right:18px}
+#dmView .dm-grid>.panel:not(.collapsible-panel)>:last-child,#playerView .player-extra>:last-child,#playerView .character-sheet>.panel:not(.collapsible-panel)>:last-child{margin-bottom:18px}
+#dmView .dm-grid>.panel:not(.collapsible-panel)>:nth-child(2),#playerView .player-extra>:nth-child(2),#playerView .character-sheet>.panel:not(.collapsible-panel)>:nth-child(2){margin-top:16px}
+#dmView .dm-grid,#playerView .character-sheet{gap:16px;align-items:start}
+#dmView .dm-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+#dmView .dm-grid>.dm-table-panel{grid-column:1/-1}
+#dmView .dm-table-panel .dm-live-actions{display:flex;gap:12px;flex-wrap:wrap}
+#dmView .dm-table-panel .turn-card{box-shadow:none;margin-top:12px;background:#1017269a;border-color:#ffffff16}
+#dmView .dm-grid>.panel .entity-list,#dmView .dm-grid>.panel .library-list{max-height:460px;overflow:auto}
+#dmView .entity-item,#playerView .skill-card{border-color:#ffffff17;background:#111726b0;border-radius:11px;padding:13px}
+#dmView .entity-item strong,#playerView .skill-card strong{font-size:14px}
+#dmView .entity-item[data-entity-id]>.entity-actions{display:none;padding-top:12px;border-top:1px solid #ffffff1b;margin-top:8px}
+#dmView .entity-item.is-inspected .entity-actions,#dmView .entity-item:focus-within .entity-actions{display:flex}
+#dmView .entity-item[data-entity-id]{cursor:pointer}
+#dmView .entity-item[data-entity-id]::after{content:'Seleccionar para administrar';color:#c8ab77;font-size:11px}
+#dmView .entity-item.is-inspected::after{content:'Controles del actor abiertos'}
+#dmView .entity-item.is-inspected{outline:1px solid #d9b88088;background:#3d3543a6}
+#dmView .library-card{background:#111726b0;border-color:#ffffff1e;border-radius:11px}
+#dmView .library-tabs{grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+#playerView .portrait{border-color:#d9b88055;background:radial-gradient(circle at 45% 34%,#6a564b,#252337 65%);font-family:Georgia,serif}
+#playerView .character-sheet{grid-template-columns:minmax(240px,.75fr) minmax(0,1.2fr)}
+#playerView .character-sheet>.portrait-card{grid-column:1;grid-row:1/span 2}
+#playerView .character-sheet>.attributes-panel,#playerView .character-sheet>.skills-panel,#playerView .character-sheet>.inventory-panel,#playerView .character-sheet>.notes-panel{grid-column:2}
+#playerView .character-sheet>.vitality-panel{grid-column:1;grid-row:auto}
+#playerView .attributes-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+#playerView .attribute-card{background:#111726;border-radius:10px;border-color:#ffffff1b}
+#playerView .final-character-card{gap:16px}
+#playerView .final-character-card>.panel{padding:20px}

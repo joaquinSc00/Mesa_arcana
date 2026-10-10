@@ -1,0 +1,20 @@
+.dm-live-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.dm-live-actions button {
+  padding-inline: 14px;
+}
+
+.dm-table-panel .turn-card {
+  box-shadow: none;
+  background: #171d2b;
+}
+
+.dm-table-panel .turn-card .entity-item {
+  margin-top: 10px;
+}
+

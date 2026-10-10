@@ -1,0 +1,77 @@
+@media (max-width: 920px) {
+  .hero,
+  .lobby-grid,
+  .workspace,
+  .character-sheet,
+  .dm-grid,
+  .board-shell {
+    grid-template-columns: 1fr;
+  }
+
+  .hero {
+    min-height: auto;
+    padding-top: 24px;
+  }
+
+  .lobby-grid {
+    margin: 0 auto 24px;
+  }
+
+  .attributes-panel,
+  .skills-panel,
+  .inventory-panel,
+  .notes-panel,
+  .vitality-panel {
+    grid-column: auto;
+  }
+
+  .sidebar {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .quick-rolls {
+    grid-column: 1 / -1;
+  }
+
+  .board-scene {
+    min-height: 640px;
+  }
+}
+
+@media (max-width: 620px) {
+  .view {
+    padding: 12px;
+  }
+
+  .topbar {
+    padding: 10px 12px;
+  }
+
+  .brand strong {
+    font-size: 15px;
+  }
+
+  .hero-copy h1 {
+    font-size: 34px;
+    line-height: 1.04;
+  }
+
+  .role-tabs,
+  .attributes-grid,
+  .skills-grid,
+  .sheet-summary,
+  .vitality-panel,
+  .sidebar {
+    grid-template-columns: 1fr;
+  }
+
+  .section-header {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .board-scene {
+    min-height: 560px;
+  }
+}
+

@@ -1,0 +1,13 @@
+.topbar{background:#111522ef;box-shadow:0 5px 20px #07091244;border-bottom:1px solid #f3d8a41b;padding:9px clamp(15px,2vw,28px);min-height:65px}
+.brand-mark{font:700 21px Georgia,serif;border-color:#d9b88099;background:linear-gradient(160deg,#252331,#171b2b);border-radius:10px;width:43px;height:43px}
+.brand strong{font:600 18px Georgia,serif;letter-spacing:.03em}
+.brand small{font-size:11px}
+.icon-button,.ghost-button{background:#24293b;border-color:#ffffff1b;border-radius:10px;transition:.17s}
+.icon-button:hover,.ghost-button:hover{border-color:#d9b88088;background:#373442}
+.primary-button{background:linear-gradient(130deg,#e7cea0,#b48b54);box-shadow:0 4px 18px #c49d3a25;border-radius:10px;color:#241c16}
+.secondary-button{background:#373344a0;border-color:#d5b47c5b;border-radius:10px}
+button:hover{filter:brightness(1.08)}
+input,textarea,select{background:#101625;border-color:#ffffff26;border-radius:10px;color:#f4efdf}
+input:focus,textarea:focus,select:focus{border-color:#d9b880;box-shadow:0 0 0 2px #d9b88025}
+.panel,.portrait-card,.room-card,.turn-card{background:linear-gradient(160deg,#25283af2,#191d2def);border:1px solid #ffffff17;border-radius:13px;box-shadow:0 15px 31px #0005}
+.panel h2{font:600 15px Georgia,serif;letter-spacing:.035em;color:#fff0d6}

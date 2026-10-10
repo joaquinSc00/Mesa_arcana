@@ -1,0 +1,39 @@
+.player-extra {
+  display: grid;
+  gap: 16px;
+}
+
+#playerView .vitality-panel {
+  display: block;
+}
+
+#playerView .vitality-panel .collapsible-content {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.player-extra .quick-rolls {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.player-extra .quick-rolls button {
+  min-width: 0;
+  padding: 8px;
+  flex-wrap: wrap;
+}
+
+.player-extra .turn-card {
+  max-width: 320px;
+  box-shadow: none;
+}
+
+.final-character-card {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: start;
+}
+
+.final-character-card > [data-ready-section="character"],
+.final-character-card > [data-ready-section="inventory"],
+.final-character-card > [data-ready-section="notes"] {
+  grid-column: 1 / -1;
+}
+

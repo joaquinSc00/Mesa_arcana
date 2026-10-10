@@ -1,0 +1,7 @@
+#boardView{padding:22px}
+#boardView .board-shell{max-width:1720px;gap:19px;grid-template-columns:minmax(0,1fr) minmax(240px,300px)}
+#boardView .board-scene{background:linear-gradient(160deg,#23283b,#131b2f);border-color:#d9b8803d;border-radius:18px;box-shadow:0 18px 38px #0005;padding:24px}
+#boardView .board-header h1{font:500 clamp(35px,5vw,67px) Georgia,serif;color:#f4ead9}
+#boardView .board-stage{border-radius:13px;min-height:450px;border-color:#d9b88044;background-color:#141c2d}
+#boardView .board-side .panel,#boardView .board-side .turn-card{box-shadow:0 15px 31px #0004}
+#boardView .board-side .panel h2{font-family:Georgia,serif;font-size:17px}

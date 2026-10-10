@@ -7,8 +7,9 @@
   <title>Mesa Arcana</title>
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="preconnect" href="https://www.gstatic.com">
-  <link rel="stylesheet" href="styles.css">
-  <link rel="stylesheet" href="v3-ui.css?v=3">
+  <link rel="stylesheet" href="styles.css?v=modules-1">
+  <link rel="stylesheet" href="v3-ui.css?v=modules-1">
+  <link rel="stylesheet" href="styles/dm-v9.css">
 </head>
 <body>
   <div class="app-shell">
@@ -269,14 +270,20 @@
                 <span class="nav-caption">Preparar</span>
                 <button class="workspace-nav-button" type="button" data-dm-nav="characters">Personajes</button>
                 <button class="workspace-nav-button" type="button" data-dm-nav="library">Biblioteca</button>
-                <button class="workspace-nav-button" type="button" data-dm-nav="adventure">Aventura <span class="future-tag">Próximamente</span></button>
-                <button class="workspace-nav-button" type="button" data-dm-nav="world">Mundo y campaña <span class="future-tag">Próximamente</span></button>
+                <button class="workspace-nav-button" type="button" data-dm-nav="adventure">Aventura</button>
+                <button class="workspace-nav-button" type="button" data-dm-nav="world">Mundo y campaña</button>
                 <button class="workspace-nav-button" type="button" data-dm-nav="settings">Configuración</button>
               </div>
             </nav>
           </aside>
 
           <div class="content-stack">
+            <div class="dm-command-bar" role="toolbar" aria-label="Accesos del director">
+              <div class="dm-command-copy"><span class="dm-status-dot"></span><span>Centro de dirección</span></div>
+              <label class="dm-search-label"><span>⌕</span><input id="dmGlobalSearch" type="search" placeholder="Buscar personajes, enemigos, NPCs y objetos…" autocomplete="off" aria-label="Buscar actores"></label>
+              <button class="secondary-button" id="dmOpenActorSearch" type="button">Inspeccionar</button>
+              <button class="ghost-button" id="dmToggleMinimal" type="button" aria-pressed="false">Vista limpia</button>
+            </div>
             <div class="section-header">
               <div>
                 <p class="eyebrow">Director</p>
@@ -297,6 +304,8 @@
                   <div class="summary-tile"><span>Personajes</span><strong id="dmHomeCharacters">0</strong></div>
                   <div class="summary-tile"><span>Entidades en sala</span><strong id="dmHomeEntities">0</strong></div>
                 </div>
+                <div class="dm-party-heading"><span>✧ EL GRUPO</span><button type="button" data-dm-goto="actors" class="ghost-button">Ver todos los actores →</button></div>
+                <div class="dm-party-roster" id="dmPartyRoster"><p class="quiet-hint">Todavía no hay personajes en la sala.</p></div>
                 <p class="quiet-hint">Elegí qué necesitás gestionar. El resto de las herramientas permanece fuera de la vista.</p>
                 <div class="shortcut-grid">
                   <button class="shortcut" type="button" data-dm-goto="scene"><strong>✦ Escena y tablero</strong><span>Editar y proyectar la escena</span></button>
@@ -314,7 +323,7 @@
                     <button class="secondary-button" id="nextTurnButton" type="button"><span data-icon="skip-forward"></span> Siguiente turno</button>
                   </div>
                   <div class="turn-card"><span>Turno actual</span><div id="dmTurnFocus"></div></div>
-                  <div class="dm-order" id="dmCombatOrder"></div>
+                  <div class="dm-order" id="dmCombatOrder"></div><p class="dm-combat-tip">Seleccioná un participante de la iniciativa para abrir su ficha y administrar sus recursos.</p>
                 </div>
               </section>
               <div class="panel dm-focus-panel collapsible-panel" data-dm-section="combat">
@@ -402,7 +411,7 @@
                   <button class="ghost-button" type="button" data-library-tab="npcs">NPCs</button>
                   <button class="ghost-button" type="button" data-library-tab="objects">Objetos</button>
                 </div>
-                <div class="library-list" id="dmLibraryList"></div>
+                <div class="library-list" id="dmLibraryList"></div><dialog id="dmLibraryDialog" class="dm-v9-dialog"><div class="dm-v9-dialog-head"><strong id="dmLibraryDialogTitle">Ficha</strong><button type="button" id="dmLibraryDialogClose" class="ghost-button">Cerrar</button></div><div id="dmLibraryDialogBody"></div></dialog>
               </div>
 
               <div class="panel collapsible-panel" data-dm-section="actors">
@@ -419,18 +428,56 @@
                 <h2>Objetos visibles</h2>
                 <div class="entity-list" id="dmObjectsList"></div>
               </div>
-              <section class="panel" data-dm-section="adventure">
-                <h2>Preparación de aventuras</h2><div class="panel-interior"><p class="quiet-hint">Las escenas guardadas, encuentros y capítulos todavía no existen en la aplicación. La escena actual se gestiona en «En vivo → Escena y tablero».</p><button class="secondary-button" type="button" data-dm-goto="scene">Ir a escena actual</button></div>
+              <section class="panel dm-planner" data-dm-section="adventure">
+                <h2>✦ Taller de escenas <span class="dm-private-label">Privado · Este navegador</span></h2>
+                <div class="dm-planner-layout">
+                  <aside class="dm-planner-sidebar">
+                    <div class="dm-planner-head"><strong>Escenas preparadas</strong><button type="button" id="planNewScene" class="secondary-button">+ Nueva</button></div>
+                    <label class="dm-v9-group-filter">Filtrar por grupo<select id="planGroupFilter"><option value="">Todos los grupos</option></select></label><div id="planSceneList" class="dm-plan-list"></div>
+                    <div class="dm-plan-help">Seleccioná una escena para editarla. Ningún borrador se muestra públicamente.</div>
+                  </aside>
+                  <div class="dm-planner-editor">
+                    <div class="dm-plan-kicker" id="planSceneStatus">Elegí una escena para empezar</div>
+                    <label>Grupo de situaciones (opcional)<input id="planGroup" list="planGroupSuggestions" placeholder="Ej. Camino norte, ciudad, encuentros opcionales"><datalist id="planGroupSuggestions"></datalist></label><label>Nombre de escena<input id="planTitle" maxlength="90" placeholder="El umbral del laberinto"></label>
+                    <div class="dm-two-fields"><label>Capítulo o acto<input id="planChapter" placeholder="Acto I · Descenso"></label><label>Tipo<select id="planType"><option>Exploración</option><option>Combate</option><option>Social</option><option>Acertijo</option><option>Descanso</option><option>Transición</option></select></label></div>
+                    <label>Descripción pública para los jugadores<textarea id="planPublic" rows="4" placeholder="Lo que describirás cuando lleguen..."></textarea></label>
+                    <label>Secretos del DM y trasfondo<textarea id="planSecrets" rows="3" placeholder="Información que no deben descubrir todavía..."></textarea></label>
+                    <label>Objetivos y pistas<textarea id="planClues" rows="3" placeholder="Qué deben conseguir, pistas y CD sugeridas..."></textarea></label>
+                    <label>Trampas, decisiones y consecuencias<textarea id="planConsequences" rows="3" placeholder="Qué ocurre si fallan o eligen otro camino..."></textarea></label>
+                    <label>Notas narrativas y transición<textarea id="planTransition" rows="3" placeholder="Qué conecta esta escena con la siguiente..."></textarea></label>
+                    <div class="dm-plan-subheading"><strong>Encuentro preparado</strong><span>Solo referencia; no publica criaturas</span></div>
+                    <div class="dm-two-fields"><label>Tipo de elemento<select id="planEntityType"><option value="enemies">Enemigos</option><option value="npcs">NPCs</option><option value="objects">Objetos</option></select></label><label>Elegir tarjeta<select id="planEntityCard"></select></label></div>
+                    <details class="dm-v9-optional"><summary>Opcional: preparar oleadas</summary><label>Nombre de la oleada o activador<input id="planWave" placeholder="Ej. Inicio, Refuerzos, Al abrir la puerta"></label><p class="dm-plan-help">Si lo dejás vacío, el elemento pertenece al encuentro general. Las oleadas solo se activan manualmente.</p></details><div class="dm-plan-actions"><button id="planAddEntity" type="button" class="secondary-button">+ Añadir al encuentro</button></div>
+                    <div id="planEncounterList" class="dm-plan-encounter"></div>
+                    <div class="dm-plan-actions dm-plan-footer"><button id="planSave" type="button" class="primary-button">Guardar borrador</button><button id="planPublish" type="button" class="secondary-button">Publicar escena</button><button id="planDeploy" type="button" class="secondary-button">Mostrar encuentro</button><button id="planDeployWave" type="button" class="ghost-button">Mostrar oleada…</button><button id="planDelete" type="button" class="ghost-button">Eliminar borrador</button></div>
+                    <p class="dm-plan-help">«Publicar escena» envía solo el título y la descripción pública. «Mostrar encuentro» agrega las entidades preparadas a la sala, por separado. Los secretos nunca se publican.</p>
+                  </div>
+                </div>
               </section>
-              <section class="panel" data-dm-section="world">
-                <h2>Mundo y campaña</h2><div class="panel-interior"><p class="quiet-hint">Reservado para misiones, lugares, facciones y diario de campaña. No se crean datos ficticios ni se muestran controles sin implementar.</p></div>
+              <section class="panel dm-world" data-dm-section="world">
+                <h2>✧ Biblia de campaña <span class="dm-private-label">Privado · Este navegador</span></h2>
+                <div class="dm-world-fields">
+                  <label>Sinopsis de la aventura<textarea id="worldSynopsis" rows="4" placeholder="La premisa central de tu historia..."></textarea></label>
+                  <label>Conflicto central y antagonistas<textarea id="worldConflict" rows="4" placeholder="Qué amenaza al mundo y quién mueve los hilos..."></textarea></label>
+                  <label>Localizaciones<textarea id="worldPlaces" rows="4" placeholder="Ciudades, mazmorras, rutas y lugares secretos..."></textarea></label>
+                  <label>Facciones y NPCs principales<textarea id="worldFactions" rows="4" placeholder="Aliados, rivales, motivaciones y relaciones..."></textarea></label>
+                  <label>Misiones, objetivos e hilos abiertos<textarea id="worldQuests" rows="4" placeholder="Pendientes y caminos alternativos..."></textarea></label>
+                  <label>Diario de sesiones y consecuencias<textarea id="worldJournal" rows="4" placeholder="Qué ocurrió, decisiones de los jugadores y cambios en el mundo..."></textarea></label>
+                  <div class="dm-plan-actions"><button type="button" id="worldSave" class="primary-button">Guardar campaña</button><button type="button" id="plannerExport" class="secondary-button">Exportar respaldo JSON</button><button type="button" id="plannerImport" class="ghost-button">Importar respaldo</button><input type="file" id="plannerImportFile" accept="application/json,.json" hidden></div>
+                  <p class="dm-plan-help">Se guarda localmente en este navegador y se separa por código de sala. Exportá un respaldo antes de cambiar de dispositivo o limpiar los datos del navegador.</p>
+                </div>
               </section>
               <section class="panel" data-dm-section="settings">
-                <h2>Configuración</h2><div class="panel-interior"><p class="quiet-hint">Las preferencias de navegación solo afectan a este navegador. Las reglas y permisos reales de Firebase deben desarrollarse por separado.</p><button class="secondary-button" type="button" id="resetWorkspaceLayout">Volver a Mesa de control</button></div>
+                <h2>Configuración</h2><div class="panel-interior"><div class="dm-preference-card"><h3>Preferencias de visualización</h3><label class="dm-check"><input type="checkbox" id="dmCompactCards"> Tarjetas compactas en las listas</label><label class="dm-check"><input type="checkbox" id="dmShowDescriptions" checked> Mostrar descripciones de actores</label><p class="quiet-hint">Estos cambios son exclusivos de este navegador y no modifican la partida.</p></div><p class="quiet-hint">Las preferencias de navegación solo afectan a este navegador. Las reglas y permisos reales de Firebase deben desarrollarse por separado.</p><button class="secondary-button" type="button" id="resetWorkspaceLayout">Volver a Mesa de control</button></div>
               </section>
             </div>
           </div>
         </div>
+        <button type="button" id="dmQuickNotesToggle" class="dm-v9-notes-toggle" hidden>✎ Notas rápidas</button><section id="dmQuickNotes" class="dm-v9-notes" hidden><header><strong>Bloc privado del DM</strong><button type="button" id="dmQuickNotesClose" class="ghost-button">×</button></header><textarea id="dmQuickNotesText" rows="9" placeholder="Decisiones, pistas, ideas y recordatorios durante la partida..."></textarea><small id="dmQuickNotesStatus">Se guarda automáticamente en este navegador</small></section><div class="dm-inspector-backdrop" id="dmInspectorBackdrop" hidden></div>
+        <aside class="dm-inspector" id="dmInspector" aria-label="Inspector contextual" aria-hidden="true" tabindex="-1">
+          <div class="dm-inspector-head"><span>✦ INSPECTOR DE ACTORES</span><button class="dm-inspector-close" id="dmInspectorClose" type="button" aria-label="Cerrar inspector">×</button></div>
+          <div id="dmInspectorBody" class="dm-inspector-body"></div>
+        </aside>
       </section>
 
       <section class="view" id="boardView" aria-labelledby="boardTitle">
@@ -471,10 +518,9 @@
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
-  <script src="firebase-config.js"></script>
-  <script src="game-system.js"></script>
-  <script src="map.js?v=1"></script>
-  <script src="app.js?v=3"></script>
-  <script src="v3-ui.js?v=2"></script>
+  <script type="module">
+    import { createApplication } from "./app.js";
+    createApplication().init();
+  </script>
 </body>
 </html>

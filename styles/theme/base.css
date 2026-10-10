@@ -1,0 +1,17 @@
+:root {
+  color-scheme: dark;
+  --bg: #10131c;
+  --bg-soft: #191e2b;
+  --panel: #202536;
+  --panel-2: #2a3043;
+  --line: #454a5d;
+  --text: #f4f0e7;
+  --muted: #b4bac8;
+  --accent: #d9b980;
+  --accent-2: #8bb8a4;
+  --danger: #d7757b;
+  --shadow: 0 18px 42px rgba(0, 0, 0, 0.34);
+  --radius: 8px;
+  font-family: Inter, "Segoe UI", system-ui, sans-serif;
+}
+

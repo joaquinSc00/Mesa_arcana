@@ -1,0 +1,102 @@
+.panel,
+.portrait-card {
+  padding: 18px;
+}
+
+.panel h2 {
+  margin: 0 0 14px;
+  font-size: 19px;
+}
+
+label {
+  display: grid;
+  gap: 7px;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+input,
+select,
+textarea {
+  width: 100%;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: #151a27;
+  color: var(--text);
+  padding: 11px 12px;
+  outline: none;
+}
+
+textarea {
+  resize: vertical;
+}
+
+form {
+  display: grid;
+  gap: 14px;
+}
+
+.primary-button,
+.secondary-button,
+.ghost-button,
+.icon-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 42px;
+  border-radius: var(--radius);
+  border: 1px solid transparent;
+  color: var(--text);
+}
+
+.primary-button {
+  background: var(--accent);
+  color: #211b15;
+  font-weight: 800;
+}
+
+.secondary-button {
+  background: rgba(139, 184, 164, 0.12);
+  border-color: rgba(139, 184, 164, 0.35);
+}
+
+.ghost-button {
+  background: transparent;
+  border-color: var(--line);
+}
+
+.icon-button {
+  width: 42px;
+  background: rgba(244, 239, 224, 0.06);
+  border-color: rgba(244, 239, 224, 0.12);
+}
+
+[data-icon] {
+  width: 18px;
+  height: 18px;
+  display: inline-block;
+}
+
+.role-tabs {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.role-tabs label {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 44px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: rgba(16, 22, 19, 0.5);
+  color: var(--text);
+}
+
+.role-tabs input {
+  width: auto;
+}
+

@@ -1,0 +1,20 @@
+.eyebrow {
+  margin: 0 0 10px;
+  color: var(--accent);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+.hero-panel,
+.panel,
+.portrait-card,
+.room-card,
+.turn-card {
+  border: 1px solid rgba(244, 239, 224, 0.1);
+  border-radius: var(--radius);
+  background: linear-gradient(180deg, #252b3d, #1d2231);
+  box-shadow: var(--shadow);
+}
+

@@ -1,0 +1,191 @@
+.character-sheet {
+  display: grid;
+  grid-template-columns: 280px minmax(0, 1fr);
+  gap: 16px;
+}
+
+.portrait-card {
+  align-content: start;
+}
+
+.portrait {
+  display: grid;
+  place-items: center;
+  aspect-ratio: 1;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background:
+    radial-gradient(circle at 50% 38%, rgba(214, 155, 74, 0.34), transparent 34%),
+    linear-gradient(135deg, rgba(121, 181, 138, 0.18), rgba(216, 105, 87, 0.16));
+  font-size: 76px;
+  font-weight: 900;
+  color: var(--accent);
+}
+
+.attributes-panel,
+.skills-panel,
+.inventory-panel,
+.notes-panel {
+  grid-column: 2;
+}
+
+.vitality-panel {
+  grid-column: 1;
+}
+
+.points-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.points-row span {
+  color: var(--muted);
+  font-size: 12px;
+  text-transform: uppercase;
+}
+
+.points-row strong {
+  display: block;
+  font-size: 34px;
+  color: var(--accent);
+}
+
+.attributes-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.skills-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.final-character-card {
+  display: grid;
+  gap: 14px;
+}
+
+.final-character-card[hidden] {
+  display: none;
+}
+
+.sheet-summary {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.summary-box {
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 10px;
+  background: rgba(16, 22, 19, 0.35);
+}
+
+.summary-box span {
+  display: block;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.summary-box strong {
+  display: block;
+  margin-top: 4px;
+  font-size: 20px;
+}
+
+.skill-card {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 10px;
+  background: rgba(16, 22, 19, 0.34);
+}
+
+.skill-card strong,
+.skill-card small {
+  display: block;
+}
+
+.skill-card small {
+  margin-top: 3px;
+  color: var(--muted);
+}
+
+.skill-card button {
+  width: 34px;
+  height: 34px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: rgba(244, 239, 224, 0.06);
+  color: var(--text);
+}
+
+.attribute-card {
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 12px;
+  background: rgba(16, 22, 19, 0.38);
+}
+
+.attribute-card h3 {
+  margin: 0;
+  font-size: 15px;
+}
+
+.attribute-card small {
+  display: block;
+  min-height: 34px;
+  margin: 5px 0 10px;
+  color: var(--muted);
+}
+
+.attribute-control {
+  display: grid;
+  grid-template-columns: 36px 1fr 36px;
+  align-items: center;
+  gap: 6px;
+}
+
+.attribute-control button {
+  min-height: 34px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: rgba(244, 239, 224, 0.06);
+  color: var(--text);
+}
+
+.attribute-control strong {
+  text-align: center;
+  font-size: 24px;
+}
+
+.quick-rolls {
+  display: grid;
+  gap: 8px;
+}
+
+.quick-rolls button {
+  justify-content: space-between;
+}
+
+.compact-label {
+  border: 1px solid rgba(244, 239, 224, 0.1);
+  border-radius: var(--radius);
+  background: rgba(29, 43, 38, 0.82);
+  padding: 12px;
+}
+
+.vitality-panel {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+

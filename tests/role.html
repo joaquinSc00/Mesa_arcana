@@ -1,0 +1,477 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#15201d">
+  <title>Mesa Arcana</title>
+  <link rel="manifest" href="../manifest.webmanifest">
+  <link rel="preconnect" href="https://www.gstatic.com">
+  <link rel="stylesheet" href="../styles.css?v=modules-1">
+  <link rel="stylesheet" href="../v3-ui.css?v=modules-1">
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <button class="brand" id="goHomeButton" type="button" aria-label="Volver al inicio">
+        <span class="brand-mark">MA</span>
+        <span>
+          <strong>Mesa Arcana</strong>
+          <small id="connectionStatus">Sin sala</small>
+        </span>
+      </button>
+
+      <div class="topbar-actions">
+        <button class="icon-button" id="copyRoomButton" type="button" title="Copiar codigo de sala" aria-label="Copiar codigo de sala">
+          <span data-icon="copy"></span>
+        </button>
+        <button class="icon-button" id="openBoardButton" type="button" title="Abrir tablero" aria-label="Abrir tablero">
+          <span data-icon="monitor"></span>
+        </button>
+      </div>
+    </header>
+
+    <main>
+      <section class="view active" id="homeView" aria-labelledby="homeTitle">
+        <div class="hero">
+          <div class="hero-copy">
+            <p class="eyebrow">Mesa presencial multi-pantalla</p>
+            <h1 id="homeTitle">La partida empieza en una sala.</h1>
+            <p>Un tablero publico, celulares privados y un director con control de escena, dados y combate.</p>
+          </div>
+          <div class="hero-panel" aria-label="Estado de una partida de ejemplo">
+            <div class="scene-orbit">
+              <span>DM</span>
+              <span>J1</span>
+              <span>J2</span>
+              <span>T</span>
+            </div>
+            <div class="hero-stat">
+              <strong>3-5</strong>
+              <span>jugadores iniciales</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="lobby-grid">
+          <form class="panel" id="createRoomForm">
+            <h2>Crear sala</h2>
+            <label>
+              Nombre de aventura
+              <input id="campaignNameInput" maxlength="48" placeholder="La grieta de hierro">
+            </label>
+            <label>
+              Tu nombre
+              <input id="hostNameInput" maxlength="28" placeholder="Director">
+            </label>
+            <button class="primary-button" type="submit">
+              <span data-icon="sparkles"></span>
+              Crear
+            </button>
+          </form>
+
+          <form class="panel" id="joinRoomForm">
+            <h2>Entrar</h2>
+            <label>
+              Codigo de sala
+              <input id="roomCodeInput" maxlength="12" placeholder="LUNA-483" autocomplete="off">
+            </label>
+            <label>
+              Tu nombre
+              <input id="participantNameInput" maxlength="28" placeholder="Joaquin">
+            </label>
+            <div class="role-tabs" role="radiogroup" aria-label="Rol">
+              <label><input type="radio" name="joinRole" value="player" checked> Jugador</label>
+              <label><input type="radio" name="joinRole" value="dm"> Director</label>
+              <label><input type="radio" name="joinRole" value="board"> Tablero</label>
+            </div>
+            <button class="primary-button" type="submit">
+              <span data-icon="log-in"></span>
+              Entrar
+            </button>
+          </form>
+        </div>
+        <div class="panel active-rooms-panel">
+          <div class="section-header compact-header">
+            <div>
+              <p class="eyebrow">Firebase</p>
+              <h2>Salas activas</h2>
+            </div>
+            <button class="secondary-button" id="refreshRoomsButton" type="button">Actualizar</button>
+          </div>
+          <div class="entity-list" id="activeRoomsList"></div>
+        </div>
+      </section>
+
+      <section class="view" id="playerView" aria-labelledby="playerTitle">
+        <div class="workspace">
+          <aside class="sidebar workspace-rail">
+            <div class="room-card">
+              <span>Sala</span>
+              <strong id="playerRoomCode">----</strong>
+            </div>
+            <nav class="workspace-nav" aria-label="Navegacion del jugador">
+              <span class="nav-caption">Tu aventura</span>
+              <button class="workspace-nav-button active" type="button" data-player-nav="character">Personaje</button>
+              <button class="workspace-nav-button" type="button" data-player-nav="stats">Estadisticas</button>
+              <button class="workspace-nav-button" type="button" data-player-nav="inventory">Inventario</button>
+              <button class="workspace-nav-button" type="button" data-player-nav="notes">Notas</button>
+              <button class="workspace-nav-button" type="button" data-player-nav="dice">Dados</button>
+              <button class="workspace-nav-button" type="button" data-player-nav="session">Partida</button>
+            </nav>
+            <div class="turn-card" id="playerTurnCard">
+              <span>Turno</span>
+              <strong id="playerTurnName">Sin combate</strong>
+            </div>
+          </aside>
+
+          <div class="content-stack">
+            <div class="section-header">
+              <div>
+                <p class="eyebrow">Jugador</p>
+                <h1 id="playerTitle">Ficha de personaje</h1>
+              </div>
+              <button class="secondary-button" id="saveCharacterButton" type="button">
+                <span data-icon="save"></span>
+                Guardar borrador
+              </button>
+              <button class="primary-button" id="finalizeCharacterButton" type="button">
+                <span data-icon="send"></span>
+                Entrar a la partida
+              </button>
+            </div>
+
+            <form class="character-sheet" id="characterForm">
+              <div class="portrait-card" data-player-section="character">
+                <div class="portrait" id="characterPortrait">?</div>
+                <label>
+                  Nombre
+                  <input id="characterNameInput" maxlength="32" placeholder="Nombre del heroe">
+                </label>
+                <label>
+                  Linaje
+                  <select id="lineageSelect"></select>
+                </label>
+                <label>
+                  Clase / camino
+                  <select id="classSelect"></select>
+                </label>
+                <label>
+                  Trasfondo
+                  <select id="backgroundSelect"></select>
+                </label>
+              </div>
+
+              <div class="panel attributes-panel collapsible-panel" data-player-section="stats">
+                <h2>Atributos</h2>
+                <div class="points-row">
+                  <div>
+                    <span>Puntos libres</span>
+                    <strong id="freePointsValue">6</strong>
+                  </div>
+                  <button class="ghost-button" id="resetAttributesButton" type="button">
+                    <span data-icon="rotate-ccw"></span>
+                    Reiniciar
+                  </button>
+                </div>
+                <div class="attributes-grid" id="attributesGrid"></div>
+              </div>
+
+              <div class="panel vitality-panel collapsible-panel" data-player-section="stats">
+                <h2>Recursos</h2>
+                <label>
+                  Vida actual
+                  <input id="hpCurrentInput" type="number" min="0" max="999">
+                </label>
+                <label>
+                  Vida maxima
+                  <input id="hpMaxInput" type="number" min="1" max="999">
+                </label>
+                <label>
+                  Mana actual
+                  <input id="manaCurrentInput" type="number" min="0" max="999">
+                </label>
+                <label>
+                  Mana maximo
+                  <input id="manaMaxInput" type="number" min="0" max="999">
+                </label>
+                <label>
+                  Defensa
+                  <input id="defenseInput" type="number" min="0" max="999" readonly>
+                </label>
+                <label>
+                  Iniciativa
+                  <input id="initiativeInput" type="number" min="0" max="999" readonly>
+                </label>
+              </div>
+
+              <div class="panel skills-panel collapsible-panel" data-player-section="stats" data-initial-collapsed="true">
+                <h2>Habilidades</h2>
+                <div class="points-row">
+                  <div>
+                    <span>Puntos de habilidad</span>
+                    <strong id="skillPointsValue">2</strong>
+                  </div>
+                </div>
+                <div class="skills-grid" id="skillsGrid"></div>
+              </div>
+
+              <div class="panel inventory-panel" data-player-section="inventory">
+                <label>
+                  Almacenamiento / inventario
+                  <textarea id="characterInventoryInput" rows="6" placeholder="Monedas, armas, pociones, llaves, cartas o cosas que el DM entregue manualmente..."></textarea>
+                </label>
+              </div>
+
+              <div class="panel notes-panel" data-player-section="notes">
+                <label>
+                  Rasgos, equipo y notas
+                  <textarea id="characterNotesInput" rows="8" placeholder="Arma, objeto raro, deuda, secreto, objetivo personal..."></textarea>
+                </label>
+              </div>
+            </form>
+            <section class="final-character-card" id="finalCharacterCard" hidden></section>
+            <section class="panel player-extra" data-player-section="dice" aria-label="Dados y consultas">
+              <h2>Dados y consultas</h2>
+              <div class="quick-rolls" id="playerQuickRolls"></div>
+            </section>
+            <section class="panel player-extra" data-player-section="session" aria-label="Partida actual">
+              <h2 id="playerSceneTitle">Escena actual</h2>
+              <p id="playerSceneDescription"></p>
+              <div class="turn-card"><span>Turno actual</span><strong id="playerSessionTurnName">Sin combate</strong></div>
+              <button class="secondary-button" id="playerOpenBoardButton" type="button">Abrir tablero</button>
+            </section>
+          </div>
+        </div>
+      </section>
+
+      <section class="view" id="dmView" aria-labelledby="dmTitle">
+        <div class="workspace dm-layout">
+          <aside class="sidebar workspace-rail">
+            <div class="room-card">
+              <span>Sala</span>
+              <strong id="dmRoomCode">----</strong>
+            </div>
+            <div class="mode-switch" role="group" aria-label="Modo del director">
+              <button class="active" type="button" data-dm-mode="live">En vivo</button>
+              <button type="button" data-dm-mode="prep">Preparacion</button>
+            </div>
+            <nav class="workspace-nav" aria-label="Navegacion del director">
+              <div data-dm-nav-group="live">
+                <span class="nav-caption">Dirigir</span>
+                <button class="workspace-nav-button active" type="button" data-dm-nav="table">Mesa de control</button>
+                <button class="workspace-nav-button" type="button" data-dm-nav="scene">Escena y tablero</button>
+                <button class="workspace-nav-button" type="button" data-dm-nav="combat">Combate e iniciativa</button>
+                <button class="workspace-nav-button" type="button" data-dm-nav="actors">Actores</button>
+                <button class="workspace-nav-button" type="button" data-dm-nav="rolls">Tiradas y registro</button>
+              </div>
+              <div data-dm-nav-group="prep">
+                <span class="nav-caption">Preparar</span>
+                <button class="workspace-nav-button" type="button" data-dm-nav="characters">Personajes</button>
+                <button class="workspace-nav-button" type="button" data-dm-nav="library">Biblioteca</button>
+                <button class="workspace-nav-button" type="button" data-dm-nav="adventure">Aventura <span class="future-tag">Próximamente</span></button>
+                <button class="workspace-nav-button" type="button" data-dm-nav="world">Mundo y campaña <span class="future-tag">Próximamente</span></button>
+                <button class="workspace-nav-button" type="button" data-dm-nav="settings">Configuración</button>
+              </div>
+            </nav>
+          </aside>
+
+          <div class="content-stack">
+            <div class="section-header">
+              <div>
+                <p class="eyebrow">Director</p>
+                <h1 id="dmTitle">Control de sesion</h1>
+              </div>
+              <button class="secondary-button" id="broadcastSceneButton" type="button">
+                <span data-icon="send"></span>
+                Mostrar escena
+              </button>
+            </div>
+
+            <div class="dm-grid">
+              <div class="panel dm-table-panel" data-dm-section="table">
+                <h2>Centro de sesión</h2>
+                <div class="home-summary" aria-live="polite">
+                  <div class="summary-tile"><span>Escena proyectada</span><strong id="dmHomeScene">Sin escena</strong></div>
+                  <div class="summary-tile"><span>Turno actual</span><strong id="dmHomeTurn">Sin combate</strong></div>
+                  <div class="summary-tile"><span>Personajes</span><strong id="dmHomeCharacters">0</strong></div>
+                  <div class="summary-tile"><span>Entidades en sala</span><strong id="dmHomeEntities">0</strong></div>
+                </div>
+                <p class="quiet-hint">Elegí qué necesitás gestionar. El resto de las herramientas permanece fuera de la vista.</p>
+                <div class="shortcut-grid">
+                  <button class="shortcut" type="button" data-dm-goto="scene"><strong>✦ Escena y tablero</strong><span>Editar y proyectar la escena</span></button>
+                  <button class="shortcut" type="button" data-dm-goto="combat"><strong>⚔ Combate</strong><span>Iniciativa, turnos y consultas</span></button>
+                  <button class="shortcut" type="button" data-dm-goto="actors"><strong>♟ Actores</strong><span>Vida, maná, objetos y condiciones</span></button>
+                  <button class="shortcut" type="button" data-dm-goto="rolls"><strong>⚄ Tiradas</strong><span>Ver las tiradas recientes</span></button>
+                </div>
+              </div>
+              <section class="panel" data-dm-section="combat" aria-label="Herramientas de combate">
+                <h2>Combate e iniciativa</h2>
+                <div class="panel-interior">
+                  <p class="quiet-hint">La iniciativa es manual. La aplicación registra el turno, pero no resuelve el combate.</p>
+                  <div class="dm-live-actions">
+                    <button class="primary-button" id="startCombatButton" type="button"><span data-icon="swords"></span> Iniciar iniciativa</button>
+                    <button class="secondary-button" id="nextTurnButton" type="button"><span data-icon="skip-forward"></span> Siguiente turno</button>
+                  </div>
+                  <div class="turn-card"><span>Turno actual</span><div id="dmTurnFocus"></div></div>
+                  <div class="dm-order" id="dmCombatOrder"></div>
+                </div>
+              </section>
+              <div class="panel dm-focus-panel collapsible-panel" data-dm-section="combat">
+                <h2>Consulta rápida del turno</h2>
+                <div class="library-tabs dm-focus-tabs" role="tablist" aria-label="Filtro de consulta">
+                  <button class="ghost-button active" type="button" data-focus-filter="social">Social</button>
+                  <button class="ghost-button" type="button" data-focus-filter="sigilo">Sigilo</button>
+                  <button class="ghost-button" type="button" data-focus-filter="combate">Combate</button>
+                  <button class="ghost-button" type="button" data-focus-filter="exploracion">Exploración</button>
+                  <button class="ghost-button" type="button" data-focus-filter="misterio">Arcano</button>
+                  <button class="ghost-button" type="button" data-focus-filter="supervivencia">Resistencia</button>
+                </div>
+                <div id="dmFocusDetails"></div>
+              </div>
+              <section class="panel" data-dm-section="rolls">
+                <h2>Tiradas recientes</h2>
+                <div class="panel-interior">
+                  <p class="quiet-hint">Consulta sincronizada de tiradas. No se dictamina éxito ni fracaso.</p>
+                  <div class="roll-feed" id="dmRollFeed"></div>
+                </div>
+              </section>
+              <form class="panel collapsible-panel" id="sceneForm" data-dm-section="scene">
+                <h2>Escena</h2>
+                <label>
+                  Titulo
+                  <input id="sceneTitleInput" maxlength="60" placeholder="Puerta de obsidiana">
+                </label>
+                <label>
+                  Descripcion publica
+                  <textarea id="sceneDescriptionInput" rows="7" placeholder="Lo que todos pueden ver..."></textarea>
+                </label>
+                <label>
+                  Modo visual
+                  <select id="sceneModeSelect">
+                    <option value="wide">Escenario entero</option>
+                    <option value="room">Habitacion actual</option>
+                    <option value="focus">Detalle importante</option>
+                  </select>
+                </label>
+              </form>
+
+              <section class="panel map-panel" data-dm-section="scene" aria-label="Cartografia">
+                <h2>Cartografia</h2>
+                <div class="map-controls">
+                  <label>Imagen del mapa <input id="mapFile" type="file" accept="image/*"></label>
+                  <div class="map-actions">
+                    <button class="secondary-button" id="mapFit" type="button">Ajustar</button>
+                    <button class="secondary-button" id="mapZoomIn" type="button" aria-label="Acercar mapa">Zoom +</button>
+                    <button class="secondary-button" id="mapZoomOut" type="button" aria-label="Alejar mapa">Zoom -</button>
+                    <button class="secondary-button" id="mapExport" type="button">Exportar PNG</button>
+                    <button class="secondary-button" id="mapResetFog" type="button">Reiniciar niebla</button>
+                    <button class="secondary-button" id="mapToggle" type="button">Ocultar mapa publico</button>
+                  </div>
+                  <details><summary>Cuadricula y alineacion</summary>
+                    <div class="map-fields">
+                      <label>Ancho de casilla<input id="mapCellWidth" type="number" min="16" max="250" value="60"></label>
+                      <label>Alto de casilla<input id="mapCellHeight" type="number" min="16" max="250" value="60"></label>
+                      <label>Desfase X<input id="mapOffsetX" type="number" min="-250" max="250" value="0"></label>
+                      <label>Desfase Y<input id="mapOffsetY" type="number" min="-250" max="250" value="0"></label>
+                    </div>
+                    <label class="map-check"><input id="mapGrid" type="checkbox" checked> Mostrar cuadricula</label>
+                    <label class="map-check"><input id="mapPublicGrid" type="checkbox" checked> Cuadricula publica</label>
+                    <button class="secondary-button" id="mapAlign" type="button" aria-pressed="false">Alinear arrastrando</button>
+                  </details>
+                  <details><summary>Fichas y vision</summary>
+                    <div id="mapTokenList" class="map-token-list"></div>
+                    <label>Vision en casillas<input id="mapVision" type="number" min="0" max="20" value="3"></label>
+                    <label class="map-check"><input id="mapFog" type="checkbox"> Niebla de guerra</label>
+                    <label class="map-check"><input id="mapVisionOutline" type="checkbox"> Perimetro de vision</label>
+                  </details>
+                </div>
+                <div class="map-stage" id="dmMapStage"><canvas id="dmMapCanvas" aria-label="Mapa editable por el director"></canvas></div>
+                <p class="map-hint">Selecciona una ficha y toca una casilla para moverla. Arrastra el fondo para desplazar; usa la rueda para acercar.</p>
+              </section>
+
+              <div class="panel collapsible-panel" data-dm-section="characters actors">
+                <h2>Personajes</h2>
+                <div class="entity-list" id="dmCharactersList"></div>
+              </div>
+
+              <div class="panel library-panel collapsible-panel" data-dm-section="library">
+                <h2>Biblioteca manual</h2>
+                <div class="library-tabs" role="tablist" aria-label="Biblioteca del director">
+                  <button class="ghost-button active" type="button" data-library-tab="enemies">Enemigos</button>
+                  <button class="ghost-button" type="button" data-library-tab="npcs">NPCs</button>
+                  <button class="ghost-button" type="button" data-library-tab="objects">Objetos</button>
+                </div>
+                <div class="library-list" id="dmLibraryList"></div>
+              </div>
+
+              <div class="panel collapsible-panel" data-dm-section="actors">
+                <h2>Enemigos</h2>
+                <div class="entity-list" id="dmEnemiesList"></div>
+              </div>
+
+              <div class="panel collapsible-panel" data-dm-section="actors">
+                <h2>NPCs visibles</h2>
+                <div class="entity-list" id="dmNpcsList"></div>
+              </div>
+
+              <div class="panel collapsible-panel" data-dm-section="actors">
+                <h2>Objetos visibles</h2>
+                <div class="entity-list" id="dmObjectsList"></div>
+              </div>
+              <section class="panel" data-dm-section="adventure">
+                <h2>Preparación de aventuras</h2><div class="panel-interior"><p class="quiet-hint">Las escenas guardadas, encuentros y capítulos todavía no existen en la aplicación. La escena actual se gestiona en «En vivo → Escena y tablero».</p><button class="secondary-button" type="button" data-dm-goto="scene">Ir a escena actual</button></div>
+              </section>
+              <section class="panel" data-dm-section="world">
+                <h2>Mundo y campaña</h2><div class="panel-interior"><p class="quiet-hint">Reservado para misiones, lugares, facciones y diario de campaña. No se crean datos ficticios ni se muestran controles sin implementar.</p></div>
+              </section>
+              <section class="panel" data-dm-section="settings">
+                <h2>Configuración</h2><div class="panel-interior"><p class="quiet-hint">Las preferencias de navegación solo afectan a este navegador. Las reglas y permisos reales de Firebase deben desarrollarse por separado.</p><button class="secondary-button" type="button" id="resetWorkspaceLayout">Volver a Mesa de control</button></div>
+              </section>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="view" id="boardView" aria-labelledby="boardTitle">
+        <div class="board-shell" id="boardShell">
+          <div class="board-scene">
+            <div class="board-header">
+              <div>
+                <p class="eyebrow">Tablero publico</p>
+                <h1 id="boardTitle">Sin escena</h1>
+              </div>
+              <button class="icon-button" id="toggleBoardScaleButton" type="button" title="Ocultar panel lateral" aria-label="Ocultar panel lateral" aria-pressed="false">
+                <span data-icon="maximize"></span>
+              </button>
+            </div>
+            <p id="boardSceneDescription">El director todavia no mostro una escena.</p>
+            <div class="board-stage" id="boardStage">
+              <div class="stage-grid"></div>
+              <div class="token-layer" id="boardTokens"></div>
+              <canvas id="publicMapCanvas" class="public-map-canvas" aria-label="Mapa de la partida"></canvas>
+            </div>
+          </div>
+
+          <aside class="board-side">
+            <div class="turn-card">
+              <span>Turno actual</span>
+              <strong id="boardTurnName">Sin combate</strong>
+            </div>
+            <div class="panel compact-panel">
+              <h2>Tiradas</h2>
+              <div class="roll-feed" id="rollFeed"></div>
+            </div>
+          </aside>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  
+  
+  
+  
+  <script type="module" src="role-client.js"></script>
+</body>
+</html>
