@@ -1,15 +1,15 @@
 :root {
   color-scheme: dark;
-  --bg: #101613;
-  --bg-soft: #17231f;
-  --panel: #1d2b26;
-  --panel-2: #23342e;
-  --line: #385248;
-  --text: #f4efe0;
-  --muted: #b9c4b7;
-  --accent: #d69b4a;
-  --accent-2: #79b58a;
-  --danger: #d86957;
+  --bg: #10131c;
+  --bg-soft: #191e2b;
+  --panel: #202536;
+  --panel-2: #2a3043;
+  --line: #454a5d;
+  --text: #f4f0e7;
+  --muted: #b4bac8;
+  --accent: #d9b980;
+  --accent-2: #8bb8a4;
+  --danger: #d7757b;
   --shadow: 0 18px 42px rgba(0, 0, 0, 0.34);
   --radius: 8px;
   font-family: Inter, "Segoe UI", system-ui, sans-serif;
@@ -22,12 +22,12 @@
 body {
   margin: 0;
   min-height: 100vh;
-  background:
-    linear-gradient(90deg, rgba(214, 155, 74, 0.06) 1px, transparent 1px),
-    linear-gradient(rgba(214, 155, 74, 0.04) 1px, transparent 1px),
-    var(--bg);
-  background-size: 42px 42px;
+  background: var(--bg);
   color: var(--text);
+}
+
+[hidden] {
+  display: none !important;
 }
 
 button,
@@ -55,7 +55,7 @@ button {
   gap: 16px;
   padding: 12px clamp(14px, 3vw, 28px);
   border-bottom: 1px solid rgba(244, 239, 224, 0.08);
-  background: rgba(16, 22, 19, 0.86);
+  background: rgba(16, 19, 28, 0.95);
   backdrop-filter: blur(14px);
 }
 
@@ -76,7 +76,7 @@ button {
   width: 42px;
   height: 42px;
   border: 1px solid var(--accent);
-  border-radius: 50%;
+  border-radius: 8px;
   color: var(--accent);
   font-weight: 800;
 }
@@ -147,7 +147,7 @@ button {
 .turn-card {
   border: 1px solid rgba(244, 239, 224, 0.1);
   border-radius: var(--radius);
-  background: linear-gradient(180deg, rgba(35, 52, 46, 0.92), rgba(29, 43, 38, 0.92));
+  background: linear-gradient(180deg, #252b3d, #1d2231);
   box-shadow: var(--shadow);
 }
 
@@ -236,7 +236,7 @@ textarea {
   width: 100%;
   border: 1px solid var(--line);
   border-radius: var(--radius);
-  background: rgba(16, 22, 19, 0.72);
+  background: #151a27;
   color: var(--text);
   padding: 11px 12px;
   outline: none;
@@ -267,13 +267,13 @@ form {
 
 .primary-button {
   background: var(--accent);
-  color: #15100a;
+  color: #211b15;
   font-weight: 800;
 }
 
 .secondary-button {
-  background: rgba(121, 181, 138, 0.14);
-  border-color: rgba(121, 181, 138, 0.42);
+  background: rgba(139, 184, 164, 0.12);
+  border-color: rgba(139, 184, 164, 0.35);
 }
 
 .ghost-button {
@@ -868,5 +868,345 @@ form {
 
   .board-scene {
     min-height: 560px;
+  }
+}
+
+/* Role workspaces */
+#playerView,
+#dmView {
+  padding: 0 clamp(14px, 2vw, 28px) 38px;
+}
+
+#playerView .workspace,
+#dmView .workspace {
+  max-width: 1500px;
+  grid-template-columns: 224px minmax(0, 1fr);
+  gap: 28px;
+}
+
+.workspace-rail {
+  position: sticky;
+  top: 82px;
+  max-height: calc(100vh - 96px);
+  overflow: auto;
+  align-self: start;
+  padding: 20px 14px 20px 0;
+  border-right: 1px solid rgba(217, 185, 128, 0.18);
+}
+
+.workspace-rail .room-card,
+.workspace-rail .turn-card {
+  box-shadow: none;
+  background: #1b2030;
+  border-color: rgba(255, 255, 255, 0.09);
+}
+
+.workspace-rail .room-card strong {
+  font-size: 18px;
+  color: var(--accent);
+}
+
+.workspace-rail .turn-card strong {
+  font-size: 15px;
+  overflow-wrap: anywhere;
+}
+
+.workspace-nav,
+.workspace-nav [data-dm-nav-group] {
+  display: grid;
+  gap: 4px;
+}
+
+.nav-caption {
+  display: block;
+  padding: 3px 11px 7px;
+  color: var(--accent);
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.workspace-nav-button {
+  width: 100%;
+  min-height: 42px;
+  padding: 9px 12px;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--muted);
+  text-align: left;
+}
+
+.workspace-nav-button:hover,
+.workspace-nav-button.active {
+  background: rgba(217, 185, 128, 0.13);
+  border-color: rgba(217, 185, 128, 0.3);
+  color: var(--text);
+}
+
+.workspace-nav::-webkit-scrollbar,
+.workspace-nav [data-dm-nav-group]::-webkit-scrollbar {
+  display: none;
+}
+
+.mode-switch {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 3px;
+  padding: 3px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #171b29;
+}
+
+.mode-switch button {
+  min-height: 35px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.mode-switch button.active {
+  background: #564735;
+  color: var(--text);
+}
+
+#playerView .content-stack,
+#dmView .content-stack {
+  min-width: 0;
+  padding-top: 26px;
+}
+
+#playerView .section-header,
+#dmView .section-header {
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  margin-bottom: 8px;
+}
+
+#playerView .section-header > div:first-child,
+#dmView .section-header > div:first-child {
+  margin-right: auto;
+}
+
+#playerView .section-header h1,
+#dmView .section-header h1 {
+  font-size: 28px;
+}
+
+#playerView .character-sheet,
+#dmView .dm-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: start;
+}
+
+#playerView .character-sheet > *,
+#dmView .dm-grid > * {
+  grid-column: auto;
+  grid-row: auto;
+}
+
+#playerView .character-sheet > .portrait-card,
+#playerView .character-sheet > .attributes-panel,
+#playerView .character-sheet > .skills-panel,
+#playerView .character-sheet > .inventory-panel,
+#playerView .character-sheet > .notes-panel,
+#dmView .dm-grid > .dm-table-panel,
+#dmView .dm-grid > #sceneForm,
+#dmView .dm-grid > .library-panel,
+#dmView .dm-grid > [data-dm-section="characters actors"] {
+  grid-column: 1 / -1;
+}
+
+#playerView .panel,
+#playerView .portrait-card,
+#dmView .panel,
+#boardView .panel {
+  background: #202536;
+  border-color: rgba(255, 255, 255, 0.1);
+  box-shadow: none;
+}
+
+#playerView .panel h2,
+#dmView .panel h2 {
+  color: #f5ede0;
+}
+
+.player-extra {
+  display: grid;
+  gap: 16px;
+}
+
+#playerView .vitality-panel {
+  display: block;
+}
+
+#playerView .vitality-panel .collapsible-content {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.player-extra .quick-rolls {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.player-extra .quick-rolls button {
+  min-width: 0;
+  padding: 8px;
+  flex-wrap: wrap;
+}
+
+.player-extra .turn-card {
+  max-width: 320px;
+  box-shadow: none;
+}
+
+.final-character-card {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: start;
+}
+
+.final-character-card > [data-ready-section="character"],
+.final-character-card > [data-ready-section="inventory"],
+.final-character-card > [data-ready-section="notes"] {
+  grid-column: 1 / -1;
+}
+
+.dm-live-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.dm-live-actions button {
+  padding-inline: 14px;
+}
+
+.dm-table-panel .turn-card {
+  box-shadow: none;
+  background: #171d2b;
+}
+
+.dm-table-panel .turn-card .entity-item {
+  margin-top: 10px;
+}
+
+.collapsible-panel > h2 {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.panel-toggle {
+  width: 30px;
+  height: 30px;
+  flex: none;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: #171b29;
+  color: var(--accent);
+  font-size: 20px;
+  line-height: 1;
+}
+
+.collapsible-content {
+  display: grid;
+  gap: 12px;
+}
+
+.dm-focus-tabs {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+#boardView .board-scene {
+  background: #1e2531;
+}
+
+#boardView .board-stage {
+  background-color: #151c27;
+}
+
+@media (max-width: 1080px) {
+  #playerView .workspace,
+  #dmView .workspace {
+    grid-template-columns: 184px minmax(0, 1fr);
+    gap: 18px;
+  }
+
+  #playerView .character-sheet,
+  #dmView .dm-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .player-extra .quick-rolls {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 760px) {
+  #playerView .workspace,
+  #dmView .workspace {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+
+  .workspace-rail {
+    position: static;
+    max-height: none;
+    overflow: visible;
+    padding: 14px 0 2px;
+    border-right: 0;
+    border-bottom: 1px solid rgba(217, 185, 128, 0.18);
+  }
+
+  .workspace-rail .room-card,
+  .workspace-rail .turn-card {
+    display: none;
+  }
+
+  .workspace-nav,
+  .workspace-nav [data-dm-nav-group] {
+    display: flex;
+    gap: 6px;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .workspace-nav-button {
+    flex: none;
+    width: auto;
+    white-space: nowrap;
+  }
+
+  .nav-caption {
+    display: none;
+  }
+
+  .mode-switch {
+    max-width: 280px;
+  }
+
+  #playerView .content-stack,
+  #dmView .content-stack {
+    padding-top: 18px;
+  }
+
+  .final-character-card,
+  .sheet-summary {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 480px) {
+  #playerView .vitality-panel .collapsible-content {
+    grid-template-columns: 1fr;
+  }
+
+  .player-extra .quick-rolls,
+  .dm-focus-tabs {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }

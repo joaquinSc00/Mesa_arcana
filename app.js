@@ -23,6 +23,7 @@ const baseState = {
 };
 
 let state = { ...baseState };
+const workspaceUi = { playerPage: "character", dmMode: "live", dmPage: "table" };
 
 const $ = (selector) => document.querySelector(selector);
 const byId = (id) => document.getElementById(id);
@@ -52,6 +53,7 @@ function init() {
   hydrateIcons();
   fillSelects();
   bindEvents();
+  setupCollapsiblePanels();
 
   const params = new URLSearchParams(window.location.search);
   if (params.get("room")) {
@@ -93,6 +95,26 @@ function bindEvents() {
   });
   byId("copyRoomButton").addEventListener("click", copyRoomCode);
   byId("openBoardButton").addEventListener("click", openBoard);
+  byId("playerOpenBoardButton").addEventListener("click", openBoard);
+  document.querySelectorAll("[data-player-nav]").forEach((button) => {
+    button.addEventListener("click", () => {
+      workspaceUi.playerPage = button.dataset.playerNav;
+      renderWorkspaceNavigation();
+    });
+  });
+  document.querySelectorAll("[data-dm-mode]").forEach((button) => {
+    button.addEventListener("click", () => {
+      workspaceUi.dmMode = button.dataset.dmMode;
+      workspaceUi.dmPage = workspaceUi.dmMode === "live" ? "table" : "characters";
+      renderWorkspaceNavigation();
+    });
+  });
+  document.querySelectorAll("[data-dm-nav]").forEach((button) => {
+    button.addEventListener("click", () => {
+      workspaceUi.dmPage = button.dataset.dmNav;
+      renderWorkspaceNavigation();
+    });
+  });
   byId("saveCharacterButton").addEventListener("click", saveCharacter);
   byId("finalizeCharacterButton").addEventListener("click", finalizeCharacter);
   byId("resetAttributesButton").addEventListener("click", resetCharacterBuild);
@@ -120,7 +142,18 @@ function bindEvents() {
       renderDmFocus();
     });
   });
-  byId("toggleBoardScaleButton").addEventListener("click", () => byId("boardShell").classList.toggle("focused"));
+  document.querySelectorAll("[data-dm-goto]").forEach((button) => button.addEventListener("click", () => {
+    const page = button.dataset.dmGoto;
+    workspaceUi.dmMode = "live";
+    workspaceUi.dmPage = page;
+    renderWorkspaceNavigation();
+  }));
+  byId("resetWorkspaceLayout").addEventListener("click", () => {
+    workspaceUi.dmMode = "live";
+    workspaceUi.dmPage = "table";
+    renderWorkspaceNavigation();
+  });
+  byId("toggleBoardScaleButton").addEventListener("click", toggleBoardLayout);
 }
 
 function restoreSession() {
@@ -313,6 +346,75 @@ function showRoleView() {
 function showView(name) {
   Object.values(views).forEach((view) => view.classList.remove("active"));
   views[name].classList.add("active");
+  renderWorkspaceNavigation();
+}
+
+function setupCollapsiblePanels() {
+  document.querySelectorAll(".collapsible-panel").forEach((panel) => {
+    const heading = panel.querySelector(":scope > h2");
+    if (!heading) return;
+    const content = document.createElement("div");
+    content.className = "collapsible-content";
+    while (heading.nextSibling) content.append(heading.nextSibling);
+    panel.append(content);
+    const toggle = document.createElement("button");
+    toggle.type = "button";
+    toggle.className = "panel-toggle";
+    toggle.setAttribute("aria-label", `Cerrar ${heading.textContent.trim()}`);
+    toggle.setAttribute("aria-expanded", "true");
+    toggle.textContent = "−";
+    toggle.addEventListener("click", () => {
+      const expanded = toggle.getAttribute("aria-expanded") !== "true";
+      toggle.setAttribute("aria-expanded", String(expanded));
+      toggle.setAttribute("aria-label", `${expanded ? "Cerrar" : "Abrir"} ${heading.firstChild.textContent.trim()}`);
+      toggle.textContent = expanded ? "−" : "+";
+      content.hidden = !expanded;
+    });
+    heading.append(toggle);
+    if (panel.dataset.initialCollapsed === "true") {
+      toggle.click();
+    }
+  });
+}
+
+function toggleBoardLayout() {
+  const focused = byId("boardShell").classList.toggle("focused");
+  const button = byId("toggleBoardScaleButton");
+  button.setAttribute("aria-pressed", String(focused));
+  button.setAttribute("aria-label", focused ? "Mostrar panel lateral" : "Ocultar panel lateral");
+  button.title = focused ? "Mostrar panel lateral" : "Ocultar panel lateral";
+}
+
+function renderWorkspaceNavigation() {
+  document.querySelectorAll("[data-player-nav]").forEach((button) => {
+    const active = button.dataset.playerNav === workspaceUi.playerPage;
+    button.classList.toggle("active", active);
+    button.setAttribute("aria-current", active ? "page" : "false");
+  });
+  document.querySelectorAll("[data-player-section], [data-ready-section]").forEach((section) => {
+    const page = section.dataset.playerSection || section.dataset.readySection;
+    section.hidden = page !== workspaceUi.playerPage;
+  });
+  const playerTitles = { character: "Mi personaje", stats: "Estadisticas", inventory: "Inventario", notes: "Notas", dice: "Dados", session: "Partida" };
+  byId("playerTitle").textContent = playerTitles[workspaceUi.playerPage];
+
+  document.querySelectorAll("[data-dm-mode]").forEach((button) => {
+    button.classList.toggle("active", button.dataset.dmMode === workspaceUi.dmMode);
+  });
+  document.querySelectorAll("[data-dm-nav-group]").forEach((group) => {
+    group.hidden = group.dataset.dmNavGroup !== workspaceUi.dmMode;
+  });
+  document.querySelectorAll("[data-dm-nav]").forEach((button) => {
+    const active = button.dataset.dmNav === workspaceUi.dmPage;
+    button.classList.toggle("active", active);
+    button.setAttribute("aria-current", active ? "page" : "false");
+  });
+  document.querySelectorAll("[data-dm-section]").forEach((section) => {
+    section.hidden = !section.dataset.dmSection.split(" ").includes(workspaceUi.dmPage);
+  });
+  const dmTitles = { table: "Mesa de control", scene: "Escena y tablero", combat: "Combate e iniciativa", actors: "Actores", rolls: "Tiradas y registro", characters: "Personajes", library: "Biblioteca", adventure: "Aventura", world: "Mundo y campaña", settings: "Configuración" };
+  byId("dmTitle").textContent = dmTitles[workspaceUi.dmPage];
+  byId("broadcastSceneButton").hidden = workspaceUi.dmPage !== "scene";
 }
 
 function renderAll() {
@@ -323,6 +425,7 @@ function renderAll() {
   renderCharacterForm();
   renderDm();
   renderBoard();
+  renderWorkspaceNavigation();
 }
 
 function renderStatus() {
@@ -439,6 +542,21 @@ function renderDm() {
   const npcs = Object.entries(state.room.npcs || {});
   const objects = Object.entries(state.room.objects || {});
 
+  // Resumen de solo lectura: no altera el estado sincronizado ni los formularios.
+  byId("dmHomeScene").textContent = state.room.scene?.title || "Sin escena";
+  const order = state.room.combat?.order || [];
+  const currentActor = order[state.room.combat?.currentIndex || 0];
+  byId("dmHomeTurn").textContent = state.room.combat?.active ? (getEntityName(currentActor) || "Sin turno") : "Sin combate";
+  byId("dmHomeCharacters").textContent = String(characters.length);
+  byId("dmHomeEntities").textContent = String(enemies.length + npcs.length + objects.length);
+  const combatOrder = byId("dmCombatOrder");
+  combatOrder.replaceChildren();
+  order.forEach((id, index) => {
+    const el = document.createElement("div");
+    el.className = "order-person" + (index === (state.room.combat?.currentIndex || 0) ? " active" : "");
+    el.textContent = `${index + 1}. ${getEntityName(id) || "Actor retirado"}`;
+    combatOrder.append(el);
+  });
   byId("sceneTitleInput").value = state.room.scene?.title || "";
   byId("sceneDescriptionInput").value = state.room.scene?.description || "";
   byId("sceneModeSelect").value = state.room.scene?.mode || "wide";
@@ -510,7 +628,7 @@ function renderEntityList(entries, type) {
   if (!entries.length) return `<div class="entity-item"><span>No hay ${getEntityPlural(type)}.</span></div>`;
 
   return entries.map(([id, item]) => `
-    <div class="entity-item" data-entity-id="${id}" data-entity-type="${type}">
+    <div class="entity-item" data-entity-id="${id}" data-entity-type="${type}" tabindex="0" aria-label="Seleccionar actor para administrar">
       <strong>${item.name || "Sin nombre"}</strong>
       <span>${getEntitySubtitle(item, type)}</span>
       ${renderEntityMeta(item, type)}
@@ -569,9 +687,15 @@ function renderBoard() {
   const currentName = getEntityName(currentId);
   byId("boardTurnName").textContent = currentName || "Sin combate";
   byId("playerTurnName").textContent = currentName || "Sin combate";
+  byId("playerSessionTurnName").textContent = currentName || "Sin combate";
+  byId("playerSceneTitle").textContent = scene.title || "Sin escena";
+  byId("playerSceneDescription").textContent = scene.description || "El director todavia no mostro una escena.";
 
   renderTokens();
   renderRolls();
+  // Reutilizar la vista de tiradas ya existente sin agregar consultas a Firebase.
+  const dmFeed = byId("dmRollFeed");
+  if (dmFeed) dmFeed.replaceChildren(...Array.from(byId("rollFeed").children, node => node.cloneNode(true)));
 }
 
 function renderTokens() {
@@ -680,7 +804,7 @@ function renderFinalCharacterCard(character) {
     .map(([key]) => getSkillName(key));
 
   card.innerHTML = `
-    <div class="panel">
+    <div class="panel" data-ready-section="character">
       <p class="eyebrow">Listo / en partida</p>
       <h2>${character.name || "Sin nombre"}</h2>
       <p>${character.lineageName} - ${character.className} - ${character.backgroundName}</p>
@@ -691,11 +815,11 @@ function renderFinalCharacterCard(character) {
         <div class="summary-box"><span>Iniciativa</span><strong>${character.derived?.initiative}</strong></div>
       </div>
     </div>
-    <div class="panel"><h2>Atributos</h2><div class="entity-meta">${Object.entries(character.attributes || {}).map(([key, value]) => `<span>${getAttributeName(key)}: ${value}</span>`).join("")}</div></div>
-    <div class="panel"><h2>Habilidades activas</h2><div class="entity-meta">${activeSkills.map((name) => `<span>${name}</span>`).join("") || "<span>Ninguna</span>"}</div></div>
-    <div class="panel"><h2>Rasgos</h2><div class="entity-meta">${(character.traitNames || []).map((name) => `<span>${name}</span>`).join("") || "<span>Ninguno</span>"}</div></div>
-    <div class="panel"><h2>Almacenamiento</h2><p>${character.inventory || "Sin objetos anotados."}</p></div>
-    <div class="panel"><h2>Notas</h2><p>${character.notes || "Sin notas."}</p></div>
+    <div class="panel" data-ready-section="stats"><h2>Atributos</h2><div class="entity-meta">${Object.entries(character.attributes || {}).map(([key, value]) => `<span>${getAttributeName(key)}: ${value}</span>`).join("")}</div></div>
+    <div class="panel" data-ready-section="stats"><h2>Habilidades activas</h2><div class="entity-meta">${activeSkills.map((name) => `<span>${name}</span>`).join("") || "<span>Ninguna</span>"}</div></div>
+    <div class="panel" data-ready-section="stats"><h2>Rasgos</h2><div class="entity-meta">${(character.traitNames || []).map((name) => `<span>${name}</span>`).join("") || "<span>Ninguno</span>"}</div></div>
+    <div class="panel" data-ready-section="inventory"><h2>Almacenamiento</h2><p>${character.inventory || "Sin objetos anotados."}</p></div>
+    <div class="panel" data-ready-section="notes"><h2>Notas</h2><p>${character.notes || "Sin notas."}</p></div>
   `;
 }
 
