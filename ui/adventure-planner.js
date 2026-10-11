@@ -175,6 +175,13 @@ export function createAdventurePlanner({ store, actions }) {
     $("worldSave").addEventListener("click",saveWorld);
     $("plannerExport").addEventListener("click",exportData);
     $("plannerImport").addEventListener("click",()=>$("plannerImportFile").click());
+    $("plannerLoadValdumbria").addEventListener("click", async () => {
+      try {
+        const response = await fetch(new URL("../adventures/valdumbria.json", import.meta.url));
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        await importData(await response.blob());
+      } catch (err) { alert(`No se pudo cargar Valdumbría: ${err.message}`); }
+    });
     $("plannerImportFile").addEventListener("change",event=>{const file=event.target.files?.[0];if(file)importData(file);event.target.value="";});
     document.querySelectorAll('[data-dm-nav="adventure"],[data-dm-nav="world"]').forEach(button=>button.addEventListener("click",load));
     document.querySelectorAll('[data-dm-mode="prep"]').forEach(button=>button.addEventListener("click",load));
