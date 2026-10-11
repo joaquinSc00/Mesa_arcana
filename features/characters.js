@@ -26,6 +26,7 @@ export function createCharacterActions({ store, sync }) {
   function writeCharacter(input, status) {
     const derived = rules.calculateDerivedStats(input);
     const traits = rules.getTraitKeys(input.lineage, input.classKey, input.background);
+    const existing = state.room?.characters?.[state.participantId];
     const character = {
       id: state.participantId, status, name: input.name.trim() || state.participantName, playerName: state.participantName,
       lineage: input.lineage, lineageName: system.lineages[input.lineage].name,
@@ -35,7 +36,8 @@ export function createCharacterActions({ store, sync }) {
       attributes: rules.getAttributeTotals(input), skills: rules.getSkillBonuses(input), traits,
       traitNames: traits.map((key) => system.traits[key]?.name).filter(Boolean), derived,
       hpCurrent: Number(input.hpCurrent || derived.hpMax), manaCurrent: Number(input.manaCurrent || derived.manaMax),
-      inventory: input.inventory.trim(), notes: input.notes.trim(), updatedAt: Date.now()
+      inventory: input.inventory.trim(), notes: input.notes.trim(),
+      avatar: input.avatar || existing?.avatar || "", updatedAt: Date.now()
     };
     const result = sync.set(`characters/${state.participantId}`, character);
     emit("notice", status === "ready" ? "Personaje listo para la partida." : "Borrador guardado.");
@@ -48,5 +50,27 @@ export function createCharacterActions({ store, sync }) {
     }
     return writeCharacter(input, "ready");
   }
-  return { isCharacterFinalized, changeLocalBonus, toggleSkillTraining, resetCharacterBuild, saveCharacter, finalizeCharacter };
+  // La creación queda bloqueada una vez finalizada. Inventario y notas siguen vivos.
+  function updateOwnJournal(field, content) {
+    const character = state.room?.characters?.[state.participantId];
+    if (state.role !== "player" || character?.status !== "ready" || !["inventory", "notes"].includes(field)) {
+      return Promise.reject(new Error("No se puede actualizar esta sección."));
+    }
+    if (typeof content !== "string" || content.length > 8000) {
+      return Promise.reject(new Error("El texto supera el máximo de 8000 caracteres."));
+    }
+    return sync.set(`characters/${state.participantId}/${field}`, content);
+  }
+  function setOwnAvatar(dataUrl) {
+    const character = state.room?.characters?.[state.participantId];
+    if (state.role !== "player" || !character || !["ready", "draft"].includes(character.status)) {
+      return Promise.reject(new Error("Guardá primero tu ficha para subir un retrato."));
+    }
+    if (dataUrl !== null && (typeof dataUrl !== "string" || !/^data:image\/jpeg;base64,[A-Za-z0-9+/=]+$/.test(dataUrl) || dataUrl.length > 130000)) {
+      return Promise.reject(new Error("Formato de retrato inválido o demasiado grande."));
+    }
+    return sync.set(`characters/${state.participantId}/avatar`, dataUrl);
+  }
+  return { isCharacterFinalized, changeLocalBonus, toggleSkillTraining, resetCharacterBuild,
+    saveCharacter, finalizeCharacter, updateOwnJournal, setOwnAvatar };
 }

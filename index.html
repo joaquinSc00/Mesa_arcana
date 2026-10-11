@@ -10,6 +10,8 @@
   <link rel="stylesheet" href="styles.css?v=modules-1">
   <link rel="stylesheet" href="v3-ui.css?v=modules-1">
   <link rel="stylesheet" href="styles/dm-v9.css">
+  <link rel="stylesheet" href="styles/player-v12.css">
+  <link rel="stylesheet" href="styles/fantasy-v13.css?v=1">
 </head>
 <body>
   <div class="app-shell">
@@ -120,6 +122,7 @@
               <button class="workspace-nav-button" type="button" data-player-nav="dice">Dados</button>
               <button class="workspace-nav-button" type="button" data-player-nav="session">Partida</button>
             </nav>
+            <div id="movePlayerNotice" class="move-notice" hidden><strong>✦ Movimiento habilitado</strong><p id="movePlayerStatus"></p><button type="button" id="movePlayerOpen" class="primary-button">Ver mapa y elegir destino</button></div>
             <div class="turn-card" id="playerTurnCard">
               <span>Turno</span>
               <strong id="playerTurnName">Sin combate</strong>
@@ -142,9 +145,11 @@
               </button>
             </div>
 
+            <p class="player-creation-hint" id="playerCreationHint">Creá tu aventurero a tu ritmo. Una vez que ingreses a la partida, sus atributos de origen quedan fijos, pero podrás actualizar tus notas e inventario.</p>
             <form class="character-sheet" id="characterForm">
               <div class="portrait-card" data-player-section="character">
                 <div class="portrait" id="characterPortrait">?</div>
+                <button class="secondary-button player-draft-avatar-button" type="button" id="playerDraftAvatarButton">Subir retrato del personaje</button>
                 <label>
                   Nombre
                   <input id="characterNameInput" maxlength="32" placeholder="Nombre del heroe">
@@ -323,6 +328,7 @@
                     <button class="secondary-button" id="nextTurnButton" type="button"><span data-icon="skip-forward"></span> Siguiente turno</button>
                   </div>
                   <div class="turn-card"><span>Turno actual</span><div id="dmTurnFocus"></div></div>
+                  <div class="move-dm-box"><h3>Movimiento asistido</h3><p class="quiet-hint">Primero conversen el movimiento. Luego habilitá la vista del mapa en el celular. Ninguna regla se resuelve automáticamente.</p><div class="move-dm-fields"><label>Personaje<select id="moveCharacter"></select></label><label>Casillas acordadas<input id="moveSteps" type="number" min="0" max="99" value="4"></label></div><div class="dm-live-actions"><button type="button" class="primary-button" id="moveAllow">Habilitar desplazamiento</button><button type="button" class="secondary-button" id="moveCancel">Cerrar permiso</button></div><p id="moveDmStatus" class="quiet-hint" aria-live="polite">No hay desplazamiento habilitado.</p></div>
                   <div class="dm-order" id="dmCombatOrder"></div><p class="dm-combat-tip">Seleccioná un participante de la iniciativa para abrir su ficha y administrar sus recursos.</p>
                 </div>
               </section>
@@ -393,10 +399,22 @@
                     <label>Vision en casillas<input id="mapVision" type="number" min="0" max="20" value="3"></label>
                     <label class="map-check"><input id="mapFog" type="checkbox"> Niebla de guerra</label>
                     <label class="map-check"><input id="mapVisionOutline" type="checkbox"> Perimetro de vision</label>
+                    <label class="map-check"><input id="mapActorVisible" type="checkbox" checked> Mostrar ficha seleccionada en el mapa público</label>
+                    <p class="map-hint">Un actor oculto sigue disponible para el DM y puede revelarse cuando lo decida.</p>
                   </details>
                 </div>
+                <details class="map-manual-tools"><summary>Herramientas manuales de tablero · niebla, medición y fichas</summary>
+                  <p class="quiet-hint">El DM decide qué ocurre: estas herramientas no bloquean movimientos ni resuelven acciones.</p>
+                  <div class="map-tools-row">
+                    <label>Herramienta<select id="mapTool"><option value="move">Mover fichas / explorar</option><option value="reveal">Revelar casillas</option><option value="hide">Ocultar casillas</option><option value="measure">Medir distancia</option></select></label>
+                    <label>Pincel manual<select id="mapBrush"><option value="0">1 casilla</option><option value="1">3 × 3 casillas</option><option value="2">5 × 5 casillas</option></select></label>
+                    <label>Exploración<select id="mapFogMode"><option value="manual">Revelación manual (recomendada)</option><option value="radius">Radio de visión automático (opcional)</option></select></label>
+                  </div>
+                  <p id="mapMeasureResult" class="map-hint" aria-live="polite">Seleccioná dos casillas para medir; la distancia es orientativa.</p>
+                  <p class="map-hint">Con «Revelar» u «Ocultar», tocá o arrastrá para pintar. Con «Mover» podés arrastrar una ficha o tocar su destino. El DM siempre puede moverla libremente.</p>
+                </details>
                 <div class="map-stage" id="dmMapStage"><canvas id="dmMapCanvas" aria-label="Mapa editable por el director"></canvas></div>
-                <p class="map-hint">Selecciona una ficha y toca una casilla para moverla. Arrastra el fondo para desplazar; usa la rueda para acercar.</p>
+                <p class="map-hint">Seleccioná una ficha y tocá su destino o arrastrala. Arrastrá el fondo para desplazar el mapa; la rueda controla el zoom. No hay colisiones automáticas.</p>
               </section>
 
               <div class="panel collapsible-panel" data-dm-section="characters actors">
@@ -449,6 +467,11 @@
                     <div class="dm-two-fields"><label>Tipo de elemento<select id="planEntityType"><option value="enemies">Enemigos</option><option value="npcs">NPCs</option><option value="objects">Objetos</option></select></label><label>Elegir tarjeta<select id="planEntityCard"></select></label></div>
                     <details class="dm-v9-optional"><summary>Opcional: preparar oleadas</summary><label>Nombre de la oleada o activador<input id="planWave" placeholder="Ej. Inicio, Refuerzos, Al abrir la puerta"></label><p class="dm-plan-help">Si lo dejás vacío, el elemento pertenece al encuentro general. Las oleadas solo se activan manualmente.</p></details><div class="dm-plan-actions"><button id="planAddEntity" type="button" class="secondary-button">+ Añadir al encuentro</button></div>
                     <div id="planEncounterList" class="dm-plan-encounter"></div>
+                    <details class="dm-v9-optional"><summary>Opcional: mapa preparado para esta escena</summary>
+                      <p class="dm-plan-help">Podés asociar una copia del mapa actual a esta escena. Se guarda solo en el navegador del DM, junto al borrador. Publicar texto y cambiar mapa son decisiones independientes.</p>
+                      <div class="dm-plan-actions"><button id="planCaptureMap" type="button" class="secondary-button">Guardar mapa actual en esta escena</button><button id="planApplyMap" type="button" class="ghost-button">Usar este mapa en el tablero</button><button id="planClearMap" type="button" class="ghost-button">Quitar asociación</button></div>
+                      <p id="planMapStatus" class="dm-plan-help">Sin mapa preparado.</p>
+                    </details>
                     <div class="dm-plan-actions dm-plan-footer"><button id="planSave" type="button" class="primary-button">Guardar borrador</button><button id="planPublish" type="button" class="secondary-button">Publicar escena</button><button id="planDeploy" type="button" class="secondary-button">Mostrar encuentro</button><button id="planDeployWave" type="button" class="ghost-button">Mostrar oleada…</button><button id="planDelete" type="button" class="ghost-button">Eliminar borrador</button></div>
                     <p class="dm-plan-help">«Publicar escena» envía solo el título y la descripción pública. «Mostrar encuentro» agrega las entidades preparadas a la sala, por separado. Los secretos nunca se publican.</p>
                   </div>
@@ -515,6 +538,7 @@
     </main>
   </div>
 
+  <section id="movePlayerOverlay" class="move-overlay" hidden aria-label="Desplazamiento del personaje"><div class="move-dialog"><div class="move-head"><div><small>MESA ARCANA · MOVIMIENTO</small><h2 id="movePlayerMapTitle">Elegí tu destino</h2></div><button id="movePlayerClose" type="button" class="secondary-button">Cerrar</button></div><div id="movePlayerGrid" class="move-grid" aria-label="Casillas de destino"></div><p id="movePlayerHint" class="quiet-hint"></p></div></section>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>

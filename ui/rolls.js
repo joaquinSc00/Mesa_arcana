@@ -5,7 +5,7 @@ export function renderRolls(feed, room) {
     const breakdown = roll.breakdown || [];
     return `
       <div class="roll-item" data-roll-id="${id}">
-        <strong>${roll.total}</strong>
+        <strong class="roll-number-gem">${roll.total}</strong>
         <span>${roll.actor} - ${roll.label}</span>
         <div class="roll-breakdown">
           ${breakdown.map((part) => `<span>${part.label}: ${formatBonus(part.value)}</span>`).join("")}

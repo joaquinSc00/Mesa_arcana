@@ -8,6 +8,10 @@ import { createDiceActions } from "./features/dice.js";
 import { createSceneActions } from "./features/scenes.js";
 import { createEntityActions } from "./features/entities.js";
 import { createLibraryActions } from "./features/library.js";
+import { createMovementActions } from "./features/movement.js";
+import { createFxActions } from "./features/fx.js";
+import { createFantasyFxView } from "./ui/fantasy-fx.js";
+import { createMovementView } from "./ui/movement.js";
 import { createMapActions } from "./features/map-sync.js";
 import { createMap } from "./map.js";
 import { createNavigation } from "./ui/navigation.js";
@@ -29,9 +33,11 @@ export function createApplication({ sdk = globalThis.firebase, storage = createS
     rooms: createRoomActions(dependencies), characters: createCharacterActions(dependencies), combat,
     dice: createDiceActions(dependencies), scenes: createSceneActions(dependencies),
     entities: createEntityActions({ ...dependencies, combat }), library: createLibraryActions(dependencies),
-    map: createMapActions(dependencies)
+    map: createMapActions(dependencies), movement: createMovementActions(dependencies), fx: createFxActions(dependencies)
   };
   const map = createMap();
+  const movement = createMovementView({store, actions});
+  const fantasy = createFantasyFxView({store, actions, map});
   const planner = createAdventurePlanner({store, actions});
   const navigation = createNavigation({ store });
   const views = {
@@ -39,7 +45,7 @@ export function createApplication({ sdk = globalThis.firebase, storage = createS
     dm: createDmView({ store, actions }), board: createBoardView({ store, actions, map })
   };
   function renderAll() {
-    renderStatus(store.state); views.player.render(); views.dm.render(); views.board.render(); navigation.render();
+    renderStatus(store.state); views.player.render(); views.dm.render(); views.board.render(); movement.render(); navigation.render(); fantasy.render();
   }
   const subscriptions = [
     store.on("notice", toast), store.on("build:changed", views.player.refreshCharacterPreview),
@@ -51,7 +57,7 @@ export function createApplication({ sdk = globalThis.firebase, storage = createS
   ];
   function init() {
     hydrateIcons(); Object.values(views).forEach(view => view.bind()); navigation.bind();
-    planner.bind(); map.init(); setupCollapsiblePanels(); bindEntityInspection();
+    planner.bind(); movement.bind(); fantasy.bind(); map.init(); setupCollapsiblePanels(); bindEntityInspection();
     const params = new URLSearchParams(window.location.search);
     if (params.get("room")) {
       const role = params.get("role") || "board";
@@ -61,6 +67,6 @@ export function createApplication({ sdk = globalThis.firebase, storage = createS
     if (!store.state.roomCode) navigation.showView("home");
     return views.home.loadActiveRooms();
   }
-  function dispose() { sync.disconnect(); subscriptions.forEach(unsubscribe => unsubscribe()); }
+  function dispose() { fantasy.dispose(); sync.disconnect(); subscriptions.forEach(unsubscribe => unsubscribe()); }
   return { init, dispose, store, sync, actions, views, navigation };
 }

@@ -75,10 +75,14 @@ export function createAdventurePlanner({ store, actions }) {
     for (const id of ["planSave","planDelete","planAddEntity","planPublish","planDeploy","planDeployWave"]) $(id).disabled = !scene;
     for (const [field, element] of Object.entries(worldFields)) $(element).value = text(data.world?.[field]);
     renderCards(); renderEncounter();
+    $("planMapStatus").textContent=scene?.mapSnapshot?.image ? `Mapa guardado en esta escena · ${scene.mapSnapshot.width} × ${scene.mapSnapshot.height} px` : "Sin mapa preparado para esta escena.";
+    $("planCaptureMap").disabled=!scene || !store.state.room?.map?.image;
+    $("planApplyMap").disabled=!scene?.mapSnapshot?.image;
+    $("planClearMap").disabled=!scene?.mapSnapshot;
   }
   function createScene() {
     load(); saveScene();
-    const scene = { id:id(), title:`Escena ${data.scenes.length+1}`, chapter:"", type:"Exploración", public:"", secrets:"", clues:"", consequences:"", transition:"", group:"", encounter:[] };
+    const scene = { id:id(), title:`Escena ${data.scenes.length+1}`, chapter:"", type:"Exploración", public:"", secrets:"", clues:"", consequences:"", transition:"", group:"", encounter:[], mapSnapshot:null };
     data.scenes.push(scene); data.selected = scene.id; persist(); render(); $("planTitle").focus();
   }
   async function publish() {
@@ -120,6 +124,21 @@ export function createAdventurePlanner({ store, actions }) {
     }
     alert(`Oleada «${choice}»: ${count} entidades agregadas. Repetirla creará nuevas instancias.`);
   }
+  function captureMap(){
+    if(!saveScene())return;
+    const scene=selected(),map=store.state.room?.map;
+    if(!scene||!map?.image)return alert("Primero cargá un mapa en En vivo → Escena y tablero.");
+    scene.mapSnapshot=JSON.parse(JSON.stringify(map));
+    if(persist())render();
+  }
+  async function applyMap(){
+    if(!saveScene())return;
+    const scene=selected();if(!scene?.mapSnapshot?.image)return;
+    if(!confirm(`¿Cambiar el mapa público por el mapa preparado de «${scene.title}»? El texto y las criaturas NO se publicarán.`))return;
+    try{ await actions.map.replaceMap(JSON.parse(JSON.stringify(scene.mapSnapshot)));alert("Mapa de la escena enviado al tablero."); }
+    catch(err){alert(`No se pudo cargar el mapa: ${err.message}`);}
+  }
+  function clearMap(){const scene=selected();if(!scene?.mapSnapshot||!confirm("¿Desvincular el mapa de esta escena? El mapa público no cambia."))return;scene.mapSnapshot=null;persist();render();}
   function saveWorld() {
     load(); data.world = Object.fromEntries(Object.entries(worldFields).map(([f,e])=>[f,$(e).value]));
     if (persist()) alert("Notas privadas de campaña guardadas en este navegador.");
@@ -135,7 +154,7 @@ export function createAdventurePlanner({ store, actions }) {
       const obj = JSON.parse(await file.text());
       if (obj.format !== "mesa-arcana-private-planner" || !Array.isArray(obj.scenes) || typeof obj.world !== "object" || obj.scenes.length>500) throw new Error("No es un respaldo válido de Mesa Arcana");
       if (!confirm("Importar este respaldo reemplazará los borradores privados de esta sala en este navegador. ¿Continuar?")) return;
-      data={ scenes:obj.scenes.map(s=>({id:text(s.id),title:text(s.title),chapter:text(s.chapter),type:text(s.type),public:text(s.public),secrets:text(s.secrets),clues:text(s.clues),consequences:text(s.consequences),transition:text(s.transition),group:text(s.group),encounter:Array.isArray(s.encounter)?s.encounter.filter(e=>["enemies","npcs","objects"].includes(e.kind)&&Number.isInteger(e.index)&&e.index>=0).map(e=>({...e,wave:text(e.wave).slice(0,60)})).slice(0,100):[]})), world:Object.fromEntries(Object.keys(worldFields).map(k=>[k,text(obj.world[k])])), selected:text(obj.selected) };
+      data={ scenes:obj.scenes.map(s=>({id:text(s.id),title:text(s.title),chapter:text(s.chapter),type:text(s.type),public:text(s.public),secrets:text(s.secrets),clues:text(s.clues),consequences:text(s.consequences),transition:text(s.transition),group:text(s.group),mapSnapshot:s.mapSnapshot?.image && typeof s.mapSnapshot.image === "string" && s.mapSnapshot.image.length<210000 ? s.mapSnapshot : null,encounter:Array.isArray(s.encounter)?s.encounter.filter(e=>["enemies","npcs","objects"].includes(e.kind)&&Number.isInteger(e.index)&&e.index>=0).map(e=>({...e,wave:text(e.wave).slice(0,60)})).slice(0,100):[]})), world:Object.fromEntries(Object.keys(worldFields).map(k=>[k,text(obj.world[k])])), selected:text(obj.selected) };
       if (!data.scenes.some(x=>x.id===data.selected)) data.selected=data.scenes[0]?.id || "";
       persist(); render(); alert("Respaldo importado.");
     } catch(err) { alert(`Error al importar: ${err.message}`); }
@@ -149,6 +168,9 @@ export function createAdventurePlanner({ store, actions }) {
     $("planPublish").addEventListener("click",publish);
     $("planDeploy").addEventListener("click",deploy);
     $("planDeployWave").addEventListener("click",deployWave);
+    $("planCaptureMap").addEventListener("click",captureMap);
+    $("planApplyMap").addEventListener("click",applyMap);
+    $("planClearMap").addEventListener("click",clearMap);
     $("planGroupFilter").addEventListener("change",renderList);
     $("worldSave").addEventListener("click",saveWorld);
     $("plannerExport").addEventListener("click",exportData);

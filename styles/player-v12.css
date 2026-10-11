@@ -1,0 +1,118 @@
+/* Mesa Arcana V12 — Interfaz de jugador. Capa aditiva: no altera el DM ni el mapa. */
+#playerView .content-stack { min-width:0; }
+#playerView .section-header { flex-wrap:wrap; }
+#playerView .player-creation-hint { color:#cfc4b5; font-size:13px; margin:0 0 5px; line-height:1.55; }
+#playerView .player-draft-avatar-button { width:100%; font-size:12px; }
+#playerView #characterPortrait { overflow:hidden; }
+#playerView #characterPortrait img { width:100%; height:100%; object-fit:cover; display:block; }
+
+#playerView .final-character-card { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:17px; align-items:start; }
+#playerView .final-character-card[hidden] { display:none !important; }
+#playerView .final-character-card > [data-ready-section="character"],
+#playerView .final-character-card > [data-ready-section="inventory"],
+#playerView .final-character-card > [data-ready-section="notes"] { grid-column:1/-1; }
+#playerView .player-hero-card { border:1px solid #d1a76b60; border-radius:18px; overflow:hidden; color:#f5eddf;
+ background: radial-gradient(ellipse at 15% 18%,#63503c4e,transparent 52%),linear-gradient(145deg,#292c40 0%,#161a2c 70%);
+ box-shadow:0 18px 48px #05071375; }
+#playerView .player-hero-banner { display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;
+ padding:13px clamp(15px,2.4vw,25px); font:700 10px system-ui,sans-serif; letter-spacing:.16em; color:#f1d2a0;
+ background:linear-gradient(90deg,#6e543b,#4d4035 55%,#282436); border-bottom:1px solid #f0cb8d35; }
+#playerView .player-hero-badge { border:1px solid #e7bd7e78; border-radius:40px; padding:5px 8px; letter-spacing:.07em; font-size:9px; }
+#playerView .player-hero-main { display:grid; grid-template-columns:clamp(118px,19vw,194px) minmax(0,1fr); gap:22px;
+ padding:clamp(16px,2.8vw,28px); align-items:center; }
+#playerView .player-hero-portrait { width:100%; aspect-ratio:4/5; border-radius:13px; border:2px solid #d2a86a;
+ overflow:hidden; display:grid; place-items:center; box-shadow:0 13px 29px #0008;
+ background:radial-gradient(circle at 55% 30%,#c09f7754,transparent 65%),linear-gradient(150deg,#413c44,#141d30); }
+#playerView .player-hero-portrait img { width:100%; height:100%; object-fit:cover; }
+#playerView .player-hero-initials { font:600 clamp(38px,7vw,76px) Georgia,serif; color:#dfbd85; }
+#playerView .player-hero-subtitle { color:#d3ba92; font-size:12px; letter-spacing:.09em; text-transform:uppercase; margin:0 0 8px; }
+#playerView .player-hero-details h2 { color:#fff1d8; font:500 clamp(29px,4.1vw,48px)/1.08 Georgia,serif; letter-spacing:-.02em; margin:0 0 8px; overflow-wrap:anywhere; }
+#playerView .player-hero-background { color:#bdbbc6; font-size:13px; margin:0 0 20px; line-height:1.6; }
+#playerView .player-avatar-actions { display:flex; gap:8px; flex-wrap:wrap; }
+#playerView .player-avatar-actions .secondary-button,#playerView .player-avatar-actions .ghost-button { min-height:37px; font-size:12px; padding:6px 10px; }
+#playerView .player-resource-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:14px;
+ padding:0 clamp(16px,2.8vw,28px) 14px; }
+#playerView .player-resource-card { background:#0d1524aa; border:1px solid #ffffff1d; padding:16px; border-radius:12px; }
+#playerView .player-resource-card > div:first-child { display:flex; align-items:baseline; justify-content:space-between; gap:12px; }
+#playerView .player-resource-card span { text-transform:uppercase; color:#d5c9b5; font-size:11px; letter-spacing:.14em; }
+#playerView .player-resource-card strong { color:#fce6c3; font:600 29px Georgia,serif; white-space:nowrap; }
+#playerView .player-resource-card strong small { color:#a8a7b7; font:400 14px system-ui,sans-serif; }
+#playerView .player-resource-bar { margin-top:12px; height:9px; border-radius:30px; background:#070c15; overflow:hidden; border:1px solid #ffffff12; }
+#playerView .player-resource-bar i { display:block; height:100%; border-radius:30px; background:linear-gradient(90deg,#ba4d52,#ec9290); }
+#playerView .player-mana .player-resource-bar i { background:linear-gradient(90deg,#416abb,#92b5ed); }
+#playerView .player-combat-stats { display:grid; grid-template-columns:1fr 1fr; gap:14px; padding:0 clamp(16px,2.8vw,28px); }
+#playerView .player-combat-stats > div { border-top:1px solid #e6c1882b; padding:13px 5px; display:flex; justify-content:space-between; align-items:center; }
+#playerView .player-combat-stats span { color:#bdbacc; font-size:13px; }
+#playerView .player-combat-stats strong { color:#f4d49f; font:600 26px Georgia,serif; }
+#playerView .player-hero-tip { margin:0; padding:5px clamp(16px,2.8vw,28px) 19px; color:#aaa9b7; font-size:11px; line-height:1.55; }
+
+#playerView .player-ready-panel, #playerView .player-journal-panel { padding:0 !important; min-width:0; }
+#playerView .player-panel-head,#playerView .player-journal-heading { padding:21px 22px 12px; }
+#playerView .player-panel-head .eyebrow,#playerView .player-journal-heading .eyebrow { margin:0 0 7px; color:#c7a67b; letter-spacing:.14em; font-size:10px; }
+#playerView .player-panel-head h2,#playerView .player-journal-heading h2 { margin:0; font:500 23px Georgia,serif; color:#f1e4d2; }
+#playerView .player-journal-heading p:last-child { margin:10px 0 0; color:#afafc0; font-size:13px; line-height:1.55; }
+#playerView .player-attributes-overview { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:10px; padding:0 20px 21px; }
+#playerView .player-attribute-tile { border:1px solid #d3b07b25; background:#101724b3; border-radius:10px; padding:12px 6px; display:grid; gap:7px; text-align:center; }
+#playerView .player-attribute-tile small { color:#c5bed0; font-size:10px; overflow-wrap:anywhere; }
+#playerView .player-attribute-tile strong { font:600 23px Georgia,serif; color:#f0cf97; }
+#playerView .player-skill-rows { padding:0 20px 21px; display:grid; gap:6px; }
+#playerView .player-stat-row { display:flex; align-items:center; justify-content:space-between; gap:10px; padding:9px 12px; border-radius:9px; background:#111a2abb; color:#d3d1df; font-size:12px; }
+#playerView .player-stat-row strong { color:#e8c997; font:600 16px Georgia,serif; }
+#playerView .player-traits { padding:0 20px 21px; display:flex; gap:7px; flex-wrap:wrap; }
+#playerView .player-trait-pill { padding:9px 12px; border:1px solid #d0a46b45; background:#d0a46b12; border-radius:40px; color:#efdbb6; font-size:12px; }
+#playerView .player-empty-note { color:#999cad; font-size:13px; }
+#playerView .player-item-preview { margin:0 20px 17px; display:flex; gap:8px; flex-wrap:wrap; padding:16px; background:#0d1624; border:1px solid #ffffff11; border-radius:11px; }
+#playerView .player-item-tag { font-size:12px; padding:8px 12px; border:1px solid #b89a6b45; background:#a8814d24; color:#efdfc6; border-radius:9px; overflow-wrap:anywhere; max-width:100%; }
+#playerView .player-field-label { display:block; margin:0 20px 9px; color:#b9b6c3; font-size:12px; }
+#playerView .player-journal-editor { display:block; width:calc(100% - 40px); max-width:none; margin:0 20px; resize:vertical; line-height:1.7; font-size:14px; min-height:158px; }
+#playerView .player-journal-actions { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; padding:16px 20px 21px; }
+#playerView .player-journal-state { color:#b2b0be; font-size:11px; }
+#playerView .player-journal-actions .primary-button { min-height:41px; padding:9px 18px; }
+#playerView .player-dice-group { grid-column:1/-1; display:grid; gap:13px; padding:14px 0; border-bottom:1px solid #ffffff14; }
+#playerView .player-dice-heading { display:grid; gap:4px; }
+#playerView .player-dice-heading strong { font:500 21px Georgia,serif; color:#f0e6d4; }
+#playerView .player-dice-heading small { color:#aaa6b8; font-size:12px; }
+#playerView .player-dice-buttons { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:10px; }
+#playerView .player-die-button { border:1px solid #d2ac7752; background:linear-gradient(155deg,#313046,#1b2538); color:#fff0d3; border-radius:11px; padding:13px 10px; display:grid; justify-items:center; gap:9px; min-height:84px; }
+#playerView .player-die-button span { font-size:11px; color:#c2b5a6; text-align:center; }
+#playerView .player-die-button strong { font:600 24px Georgia,serif; }
+#playerView .player-die-button:active { transform:translateY(1px); }
+#playerView .player-extra .quick-rolls { display:block; }
+
+@media (max-width: 760px) {
+  #playerView { padding:0 12px 100px; }
+  #playerView .workspace { display:block; }
+  #playerView .workspace-rail { display:block; padding:9px 0 8px; border:0; background:transparent; box-shadow:none; max-height:none; position:static; }
+  #playerView .workspace-rail .workspace-nav { position:fixed; z-index:20; left:0; right:0; bottom:0; display:flex; overflow-x:auto; gap:5px;
+    padding:10px 10px calc(10px + env(safe-area-inset-bottom)); background:#131826f5; border-top:1px solid #d4b27b49;
+    box-shadow:0 -12px 30px #050710aa; scrollbar-width:none; }
+  #playerView .workspace-nav-button { flex:1 0 auto; width:auto; min-height:49px; padding:10px 11px; font-size:12px; text-align:center; border-radius:9px; }
+  #playerView .workspace-rail .room-card,#playerView .workspace-rail .turn-card { display:none; }
+  #playerView .move-notice { position:relative; z-index:2; margin:0 0 8px; }
+  #playerView .content-stack { padding-top:10px; }
+  #playerView .section-header { padding:9px 0 15px; gap:10px; }
+  #playerView .section-header h1 { font-size:28px; }
+  #playerView .player-hero-main { grid-template-columns:112px minmax(0,1fr); gap:13px; }
+  #playerView .player-hero-details h2 { font-size:28px; }
+  #playerView .player-hero-background { margin-bottom:10px; }
+  #playerView .player-attributes-overview { grid-template-columns:repeat(4,minmax(0,1fr)); }
+  #playerView .final-character-card { grid-template-columns:1fr; }
+  #playerView .final-character-card > [data-ready-section] { grid-column:1/-1; }
+  #playerView .player-dice-buttons { grid-template-columns:repeat(3,minmax(0,1fr)); }
+}
+@media (max-width: 430px) {
+  #playerView .player-hero-main { grid-template-columns:90px minmax(0,1fr); gap:12px; padding:15px; }
+  #playerView .player-hero-portrait { border-radius:10px; }
+  #playerView .player-hero-details h2 { font-size:24px; }
+  #playerView .player-hero-subtitle { font-size:10px; }
+  #playerView .player-hero-background { font-size:11px; }
+  #playerView .player-avatar-actions .secondary-button,#playerView .player-avatar-actions .ghost-button { font-size:11px; min-height:32px; }
+  #playerView .player-resource-grid { grid-template-columns:1fr 1fr; gap:8px; padding:0 13px 10px; }
+  #playerView .player-resource-card { padding:11px 9px; }
+  #playerView .player-resource-card strong { font-size:22px; }
+  #playerView .player-resource-card span { font-size:10px; }
+  #playerView .player-combat-stats { padding:0 13px; }
+  #playerView .player-hero-tip { padding:6px 13px 17px; }
+  #playerView .player-attributes-overview { grid-template-columns:repeat(2,minmax(0,1fr)); }
+  #playerView .player-dice-buttons { grid-template-columns:repeat(2,minmax(0,1fr)); }
+}

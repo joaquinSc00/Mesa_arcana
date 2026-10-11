@@ -1,7 +1,7 @@
 export function createMap({ document = globalThis.document, window = globalThis.window,
   ResizeObserver = globalThis.ResizeObserver, Image = globalThis.Image } = {}) {
   const $ = (id) => document.getElementById(id);
-  const defaults = { width: 900, height: 650, cellWidth: 60, cellHeight: 60, offsetX: 0, offsetY: 0, grid: true, publicGrid: true, fog: false, visionOutline: false };
+  const defaults = { width: 900, height: 650, cellWidth: 60, cellHeight: 60, offsetX: 0, offsetY: 0, grid: true, publicGrid: true, fog: false, fogMode: "radius", visionOutline: false, revealed: {}, tokenVisible: {} };
   const view = { dm: { zoom: 1, x: 0, y: 0, fitted: false }, public: { zoom: 1, x: 0, y: 0, fitted: false } };
   let room = null;
   let write = null;
@@ -9,14 +9,19 @@ export function createMap({ document = globalThis.document, window = globalThis.
   let image = null;
   let imageSource = "";
   let selected = "";
+  const portraits = new Map();
   let align = false;
   let drag = null;
   let ready = false;
+  let tool = "move";
+  let measuring = null;
+  let measureEnd = null;
+  let pendingPaint = null;
 
   function actors() {
     if (!room) return [];
     return ["characters", "enemies", "npcs", "objects"].flatMap((group) =>
-      Object.entries(room[group] || {}).map(([id, actor]) => ({ key: `${group}_${id}`, group, name: actor.name || "?" }))
+      Object.entries(room[group] || {}).map(([id, actor]) => ({ key: `${group}_${id}`, group, id, name: actor.name || "?", visible: actor.visible !== false, avatar: actor.avatar || "" }))
     );
   }
 
@@ -33,7 +38,7 @@ export function createMap({ document = globalThis.document, window = globalThis.
   function visible() {
     const result = new Set();
     actors().forEach((actor, index) => {
-      if (actor.group !== "characters") return;
+      if (actor.group !== "characters" || !actor.visible) return;
       const p = position(actor, index);
       const radius = vision(actor);
       for (let y = p.y - radius; y <= p.y + radius; y++) {
@@ -48,7 +53,7 @@ export function createMap({ document = globalThis.document, window = globalThis.
   function reveal() {
     const patch = {};
     visible().forEach((key) => { if (!map.explored?.[key]) patch[`explored/${key}`] = true; });
-    if (Object.keys(patch).length) write(patch);
+    if (map.fogMode === "radius" && Object.keys(patch).length && write) write(patch);
   }
 
   function fit(role) {
@@ -85,14 +90,17 @@ export function createMap({ document = globalThis.document, window = globalThis.
       ctx.fillText("Carga un mapa para compartirlo con el tablero", map.width / 2, map.height / 2);
     }
     const cw = map.cellWidth, ch = map.cellHeight, ox = map.offsetX, oy = map.offsetY;
-    const seen = visible();
-    const explored = map.explored || {};
+    const seen = map.fogMode === "radius" ? visible() : new Set();
+    const explored = map.fogMode === "manual" ? (map.revealed || {}) : (map.explored || {});
     if (map.fog) {
       const cols = Math.min(160, Math.ceil((map.width - ox) / cw));
       const rows = Math.min(160, Math.ceil((map.height - oy) / ch));
       for (let y = 0; y < rows; y++) for (let x = 0; x < cols; x++) {
         const key = cellKey(x, y);
-        const alpha = role === "dm" ? (seen.has(key) ? 0.04 : explored[key] ? 0.23 : 0.5) : seen.has(key) ? 0 : explored[key] ? 0.7 : 0.98;
+        const alpha = role === "dm"
+          ? (seen.has(key) || explored[key] ? 0.06 : 0.53)
+          : map.fogMode === "manual" ? (explored[key] ? 0 : 0.985)
+          : seen.has(key) ? 0 : explored[key] ? 0.72 : 0.985;
         ctx.fillStyle = `rgba(5,8,14,${alpha})`;
         ctx.fillRect(ox + x * cw, oy + y * ch, cw + 1, ch + 1);
       }
@@ -107,15 +115,35 @@ export function createMap({ document = globalThis.document, window = globalThis.
     }
     actors().forEach((actor, index) => {
       const p = position(actor, index);
-      if (role === "public" && map.fog && actor.group !== "characters" && !seen.has(cellKey(p.x, p.y))) return;
+      if (role === "public") {
+        if (!actor.visible || map.tokenVisible?.[actor.key] === false) return;
+        if (map.fog && actor.group !== "characters" && !(map.fogMode === "manual" ? explored[cellKey(p.x,p.y)] : seen.has(cellKey(p.x,p.y)))) return;
+      }
       const x = ox + (p.x + 0.5) * cw, y = oy + (p.y + 0.5) * ch;
       const radius = Math.min(cw, ch) * 0.34;
       const color = { characters: "#85d2a8", enemies: "#e18d8d", npcs: "#a7baf0", objects: "#e4c782" }[actor.group];
       ctx.beginPath(); ctx.arc(x, y, radius, 0, Math.PI * 2);
       ctx.fillStyle = "#17202e"; ctx.fill(); ctx.lineWidth = 3 / local.zoom; ctx.strokeStyle = color; ctx.stroke();
-      ctx.fillStyle = "#fff8e9"; ctx.font = `bold ${Math.max(12, radius * 0.8)}px system-ui`;
-      ctx.textAlign = "center"; ctx.textBaseline = "middle";
-      ctx.fillText(actor.name.slice(0, 1).toUpperCase(), x, y);
+      const src = actor.avatar;
+      let portrait = null;
+      if (typeof src === "string" && /^data:image\/jpeg;base64,[A-Za-z0-9+/=]+$/.test(src) && src.length <= 130000) {
+        portrait = portraits.get(src);
+        if (!portrait) {
+          portrait = new Image();
+          portraits.set(src, portrait);
+          portrait.onload = drawAll;
+          portrait.src = src;
+          if (portraits.size > 60) portraits.delete(portraits.keys().next().value);
+        }
+      }
+      if (portrait?.complete && portrait.naturalWidth) {
+        ctx.save();ctx.beginPath();ctx.arc(x,y,radius-2,0,Math.PI*2);ctx.clip();
+        ctx.drawImage(portrait,x-radius+2,y-radius+2,(radius-2)*2,(radius-2)*2);ctx.restore();
+      } else {
+        ctx.fillStyle = "#fff8e9"; ctx.font = `bold ${Math.max(12, radius * 0.8)}px system-ui`;
+        ctx.textAlign = "center"; ctx.textBaseline = "middle";
+        ctx.fillText(actor.name.slice(0, 1).toUpperCase(), x, y);
+      }
       if (role === "dm" && actor.key === selected) {
         ctx.beginPath(); ctx.arc(x, y, radius + 5, 0, Math.PI * 2); ctx.strokeStyle = "#fff1c3"; ctx.lineWidth = 2 / local.zoom; ctx.stroke();
       }
@@ -124,6 +152,11 @@ export function createMap({ document = globalThis.document, window = globalThis.
         ctx.strokeStyle = color; ctx.lineWidth = 1 / local.zoom; ctx.stroke();
       }
     });
+    if(role === "dm" && measuring){
+      const from={x:ox+(measuring.x+.5)*cw,y:oy+(measuring.y+.5)*ch};
+      const to=measureEnd?{x:ox+(measureEnd.x+.5)*cw,y:oy+(measureEnd.y+.5)*ch}:from;
+      ctx.beginPath();ctx.moveTo(from.x,from.y);ctx.lineTo(to.x,to.y);ctx.strokeStyle="#f3d69b";ctx.lineWidth=3/local.zoom;ctx.setLineDash([8/local.zoom,5/local.zoom]);ctx.stroke();ctx.setLineDash([]);
+    }
     ctx.restore();
   }
 
@@ -139,12 +172,14 @@ export function createMap({ document = globalThis.document, window = globalThis.
       const button = document.createElement("button");
       button.type = "button";
       button.className = `map-token-button${actor.key === selected ? " active" : ""}`;
-      button.textContent = actor.name;
+      button.textContent = `${actor.group === "characters" ? "♟" : actor.group === "enemies" ? "⚔" : "◆"} ${actor.name}${actor.visible && map.tokenVisible?.[actor.key] !== false ? "" : " · OCULTO"}`;
       button.addEventListener("click", () => { selected = actor.key; renderTokens(); draw("dm"); });
       list.append(button);
     });
     const actor = entries.find((item) => item.key === selected);
     $("mapVision").value = actor ? vision(actor) : 3;
+    $("mapActorVisible").disabled = !actor;
+    $("mapActorVisible").checked = !!actor && actor.visible && map.tokenVisible?.[actor.key] !== false;
   }
 
   function sync(nextRoom, writer) {
@@ -170,6 +205,7 @@ export function createMap({ document = globalThis.document, window = globalThis.
       if (document.activeElement !== $(id)) $(id).value = value;
     }
     for (const [id, value] of Object.entries({ mapGrid: map.grid, mapPublicGrid: map.publicGrid, mapFog: map.fog, mapVisionOutline: map.visionOutline })) $(id).checked = value;
+    if (document.activeElement !== $("mapFogMode")) $("mapFogMode").value = map.fogMode || "radius";
     renderTokens();
     drawAll();
   }
@@ -190,36 +226,59 @@ export function createMap({ document = globalThis.document, window = globalThis.
     const canvas = $("dmMapCanvas");
     new ResizeObserver(() => drawAll()).observe(canvas);
     new ResizeObserver(() => draw("public")).observe($("publicMapCanvas"));
+    const gridLimit = () => ({ cols: Math.max(1, Math.ceil((map.width-map.offsetX)/map.cellWidth)), rows: Math.max(1, Math.ceil((map.height-map.offsetY)/map.cellHeight)) });
+    const inside = (p) => { const {cols,rows}=gridLimit(); return p.x >= 0 && p.y >= 0 && p.x < cols && p.y < rows; };
+    const paint = (point) => {
+      if (!inside(point) || !pendingPaint) return;
+      const brush = Number($("mapBrush").value) || 0;
+      for (let dy=-brush;dy<=brush;dy++) for(let dx=-brush;dx<=brush;dx++) {
+        const at={x:point.x+dx,y:point.y+dy};if(!inside(at))continue;
+        const key=cellKey(at.x,at.y),value=tool === "reveal";
+        pendingPaint[`revealed/${key}`]=value ? true : null;
+        map.revealed ||= {}; if(value)map.revealed[key]=true;else delete map.revealed[key];
+      }
+      drawAll();
+    };
     canvas.addEventListener("pointerdown", (event) => {
       if (event.button !== 0) return;
       const point = gridPoint(event);
-      const hit = actors().find((actor, index) => { const p = position(actor, index); return p.x === point.x && p.y === point.y; });
-      drag = { x: event.clientX, y: event.clientY, vx: view.dm.x, vy: view.dm.y, ox: map.offsetX, oy: map.offsetY, point, hit, moved: false };
+      if (tool === "reveal" || tool === "hide") {
+        pendingPaint={};paint(point);drag={paint:true};canvas.setPointerCapture(event.pointerId);return;
+      }
+      if (tool === "measure") {
+        if (!measuring) { measuring=point;measureEnd=point; }
+        else { measureEnd=point;const delta=Math.abs(measuring.x-point.x)+Math.abs(measuring.y-point.y);
+          $("mapMeasureResult").textContent=`Desde (${measuring.x+1}, ${measuring.y+1}) hasta (${point.x+1}, ${point.y+1}) · ${delta} casillas ortogonales · ${Math.max(Math.abs(measuring.x-point.x),Math.abs(measuring.y-point.y))} con diagonales.`;
+          measuring=null; }
+        draw("dm");return;
+      }
+      const hit = actors().find((actor, index) => { const p=position(actor,index); return p.x===point.x && p.y===point.y; });
+      drag={x:event.clientX,y:event.clientY,vx:view.dm.x,vy:view.dm.y,ox:map.offsetX,oy:map.offsetY,point,hit,moved:false};
       canvas.setPointerCapture(event.pointerId);
     });
     canvas.addEventListener("pointermove", (event) => {
-      if (!drag) return;
-      const dx = event.clientX - drag.x, dy = event.clientY - drag.y;
-      if (Math.abs(dx) + Math.abs(dy) > 5) drag.moved = true;
-      if (!drag.moved) return;
-      if (align) { map.offsetX = Math.round(drag.ox + dx / view.dm.zoom); map.offsetY = Math.round(drag.oy + dy / view.dm.zoom); }
-      else { view.dm.x = drag.vx + dx; view.dm.y = drag.vy + dy; }
+      if (!drag)return;
+      if (drag.paint){paint(gridPoint(event));return;}
+      const dx=event.clientX-drag.x,dy=event.clientY-drag.y;
+      if (Math.abs(dx)+Math.abs(dy)>5)drag.moved=true;
+      if(!drag.moved)return;
+      if(align){map.offsetX=Math.round(drag.ox+dx/view.dm.zoom);map.offsetY=Math.round(drag.oy+dy/view.dm.zoom);}
+      else if (!drag.hit){view.dm.x=drag.vx+dx;view.dm.y=drag.vy+dy;}
       draw("dm");
     });
-    canvas.addEventListener("pointerup", () => {
-      if (!drag) return;
-      if (drag.moved && align) write({ offsetX: map.offsetX, offsetY: map.offsetY });
-      if (!drag.moved && !align) {
-        if (drag.hit) selected = drag.hit.key;
-        else if (selected && drag.point.x >= 0 && drag.point.y >= 0) {
-          write({ [`positions/${selected}`]: drag.point });
-          // El listener de Firebase revela casillas al recibir la nueva posicion.
-        }
-        renderTokens(); draw("dm");
+    canvas.addEventListener("pointerup", (event) => {
+      if(!drag)return;
+      if(drag.paint){if(Object.keys(pendingPaint||{}).length)write(pendingPaint);pendingPaint=null;drag=null;return;}
+      const point=gridPoint(event);
+      if(drag.moved&&align)write({offsetX:map.offsetX,offsetY:map.offsetY});
+      else if(!align){
+        if(drag.hit){selected=drag.hit.key;if(drag.moved && inside(point))write({[`positions/${selected}`]:point});}
+        else if(!drag.moved && selected && inside(point))write({[`positions/${selected}`]:point});
+        renderTokens();draw("dm");
       }
-      drag = null;
+      drag=null;
     });
-    canvas.addEventListener("pointercancel", () => { drag = null; });
+    canvas.addEventListener("pointercancel",()=>{pendingPaint=null;drag=null;});
     canvas.addEventListener("wheel", (event) => {
       event.preventDefault();
       const rect = canvas.getBoundingClientRect();
@@ -240,8 +299,8 @@ export function createMap({ document = globalThis.document, window = globalThis.
       link.href = canvas.toDataURL("image/png"); link.click();
     });
     $("mapResetFog").addEventListener("click", () => {
-      if (!confirm("Reiniciar las areas descubiertas del mapa?")) return;
-      write({ explored: Object.fromEntries([...visible()].map((key) => [key, true])) });
+      if (!confirm("¿Ocultar de nuevo las áreas descubiertas del mapa?")) return;
+      write({ explored: null, revealed: null });
     });
     $("mapAlign").addEventListener("click", () => {
       align = !align; $("mapAlign").setAttribute("aria-pressed", String(align));
@@ -256,6 +315,9 @@ export function createMap({ document = globalThis.document, window = globalThis.
     for (const [id, key] of Object.entries({ mapGrid: "grid", mapPublicGrid: "publicGrid", mapFog: "fog", mapVisionOutline: "visionOutline" })) {
       $(id).addEventListener("change", () => write({ [key]: $(id).checked }));
     }
+    $("mapTool").addEventListener("change",()=>{tool=$("mapTool").value;measuring=null;measureEnd=null;});
+    $("mapFogMode").addEventListener("change",()=>write({fogMode:$("mapFogMode").value}));
+    $("mapActorVisible").addEventListener("change",()=>{if(selected)write({[`tokenVisible/${selected}`]:$("mapActorVisible").checked});});
     $("mapVision").addEventListener("change", () => {
       if (selected) write({ [`vision/${selected}`]: Math.max(0, Math.min(20, Number($("mapVision").value) || 0)) });
     });
@@ -298,5 +360,18 @@ export function createMap({ document = globalThis.document, window = globalThis.
     });
   }
 
-  return { init, sync, reveal, fit };
+  // Coordenadas de pantalla para superponer efectos visuales; respeta zoom y desplazamiento.
+  function projectToken(role, key) {
+    const entries = actors();
+    const index = entries.findIndex(a => a.key === key);
+    if (index < 0) return null;
+    const canvas = $(role === "dm" ? "dmMapCanvas" : "publicMapCanvas");
+    if (!canvas) return null;
+    const pos = position(entries[index], index);
+    if (!view[role].fitted) fit(role);
+    const v = view[role];
+    return { x: v.x + (map.offsetX + (pos.x + .5) * map.cellWidth) * v.zoom,
+      y: v.y + (map.offsetY + (pos.y + .5) * map.cellHeight) * v.zoom };
+  }
+  return { init, sync, reveal, fit, projectToken };
 }

@@ -70,8 +70,8 @@ export function createFirebaseSync({ store, storage, sdk = globalThis.firebase, 
     return Promise.resolve();
   }
   function update(path, patch) {
-    if (roomRef) return roomRef.child(path).update(patch);
-    for (const [key, value] of Object.entries(patch)) assignPath(`${path}/${key}`, value);
+    if (roomRef) return (path ? roomRef.child(path) : roomRef).update(patch);
+    for (const [key, value] of Object.entries(patch)) assignPath(path ? `${path}/${key}` : key, value);
     emit("room:changed", { room: state.room, connected: false });
     return Promise.resolve();
   }

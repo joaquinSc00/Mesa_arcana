@@ -1,0 +1,40 @@
+/* V13 — dados facetados y FX intensos. Los efectos no modifican mecánicas. */
+.fantasy-roll-overlay { position:fixed;inset:0; z-index:90;display:grid;place-items:center;padding:16px;background:radial-gradient(ellipse at 50% 46%,#3f24469f,#080c17eb 68%);backdrop-filter:blur(7px);isolation:isolate;pointer-events:auto; }
+.fantasy-roll-overlay[hidden] { display:none!important; }
+.fantasy-roll-card { position:relative;display:grid;justify-items:center;gap:4px;width:min(520px,100%);padding:28px 22px 24px;border-radius:20px;border:1px solid #d9af7185;background:radial-gradient(circle at 50% 45%,#36324c,#161c2dee 65%,#0c1422);box-shadow:0 0 45px #e3a36325,0 35px 90px #03040adc,inset 0 0 24px #dcb76b12;text-align:center;overflow:hidden; }
+.fantasy-roll-card:before,.fantasy-roll-card:after {content:'';position:absolute;left:12px;right:12px;height:1px;background:linear-gradient(90deg,transparent,#f3cb8d,transparent);}
+.fantasy-roll-card:before {top:12px}.fantasy-roll-card:after {bottom:12px}
+.fantasy-roll-card::selection{background:#936b40}
+.fantasy-roll-crest{font-size:10px;letter-spacing:.22em;color:#f2c785;text-shadow:0 0 17px #e8a95982;text-transform:uppercase;}
+.fantasy-roll-title{margin:7px 0 0;color:#fff6e5;font:500 clamp(22px,4vw,36px) Georgia,serif;line-height:1.15;}
+.fantasy-die-canvas{display:block;width:min(100%,360px);height:280px;filter:drop-shadow(0 16px 27px #ffb87e29)}
+.fantasy-roll-result{font:700 clamp(30px,6vw,47px) Georgia,serif;color:#ffe6ae;text-shadow:0 0 24px #f6ab539a;letter-spacing:.03em;min-height:55px}
+.fantasy-roll-details{font-size:12px;color:#bcb3c5;margin:0;max-width:350px}
+.fantasy-roll-close{position:absolute;right:18px;top:19px;z-index:2;cursor:pointer;border:1px solid #c5b18b65;background:#171b2ba8;color:#eee4d5;border-radius:7px;padding:7px 11px;font-size:12px}
+.fantasy-roll-overlay[data-critical="high"] .fantasy-roll-card{border-color:#fce28d;box-shadow:0 0 85px #f6d16d79,0 35px 90px #03040adc;animation:fxCriticalPulse .6s ease 2}
+.fantasy-roll-overlay[data-critical="low"] .fantasy-roll-card{border-color:#dc657e;box-shadow:0 0 80px #b1204990,0 35px 90px #03040adc}
+@keyframes fxCriticalPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.045)}}
+.fantasy-stage-fx{position:absolute;inset:0;width:100%;height:100%;z-index:17;pointer-events:none;}
+.fantasy-roll-overlay.is-board{position:absolute;inset:0;z-index:18;padding:0;background:transparent;backdrop-filter:none;pointer-events:none;align-items:center;justify-items:center}
+.fantasy-roll-overlay.is-board .fantasy-roll-card{width:min(360px,90%);padding:16px 12px;background:radial-gradient(circle at 50% 45%,#303650e9,#111827ec 74%);box-shadow:0 0 42px #e3a36365,0 20px 60px #02040a99;pointer-events:auto}
+.fantasy-roll-overlay.is-board .fantasy-die-canvas{height:175px;width:240px}
+.fantasy-roll-overlay.is-board .fantasy-roll-title{font-size:23px}
+.fantasy-roll-overlay.is-board .fantasy-roll-result{font-size:30px;min-height:38px}
+.fantasy-roll-overlay.is-board .fantasy-roll-close{right:10px;top:10px}
+.fantasy-fx-controls{margin:12px 0;padding:14px;border:1px solid #c69b6a7d;border-radius:12px;background:linear-gradient(135deg,#322940,#171e30);box-shadow:inset 0 0 16px #e5be7b13}
+.fantasy-fx-controls summary{cursor:pointer;color:#f4d09a;font:600 17px Georgia,serif;line-height:1.45}
+.fantasy-fx-controls summary::marker{color:#d0a26f}
+.fx-only-visual{font:500 10px system-ui,sans-serif;letter-spacing:.08em;padding:3px 6px;border:1px solid #f3d99f40;border-radius:20px;color:#bea6bc;vertical-align:middle}
+.fantasy-fx-fields{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:15px 0 11px}
+.fantasy-fx-fields label{display:grid;gap:6px;min-width:0;color:#dac5ad;font-size:12px}
+.fantasy-fx-fields select{width:100%;min-width:0;max-width:100%;padding:9px 6px;background:#131929;border:1px solid #c59b6666;color:#f2e9de;border-radius:7px}
+.fantasy-fx-controls .primary-button{width:100%;min-height:43px}
+#playerView .player-die-button{min-height:137px;position:relative;gap:4px;overflow:hidden;background:radial-gradient(circle at 50% 24%,#61507988,transparent 69%),linear-gradient(155deg,#312940,#14273b);box-shadow:inset 0 1px 0 #f0d7a344,0 7px 20px #0708104d;transition:transform .16s,box-shadow .16s,border-color .16s}
+#playerView .player-die-button:hover,#playerView .player-die-button:focus-visible{transform:translateY(-4px);border-color:#f0d49b;box-shadow:0 0 27px #deb46951,0 7px 20px #0708104d}
+#playerView .player-die-button span{font-size:11px;color:#c4b9b1}
+#playerView .player-die-button strong{font:600 19px Georgia,serif;color:#ffdb9d}
+.fantasy-die-button-icon{width:65px;height:65px;filter:drop-shadow(0 0 14px #e6a96071);transition:transform .4s}
+.player-die-button:hover .fantasy-die-button-icon{transform:rotate(-12deg) scale(1.09)}
+.roll-number-gem{display:grid;place-items:center;min-width:43px;height:43px;border:2px solid #d4b37c;border-radius:11px;clip-path:polygon(50% 0,93% 22%,100% 75%,50% 100%,0 75%,7% 22%);background:radial-gradient(circle at 34% 24%,#6f4c56,#28364b 80%);color:#f9e8c0;text-shadow:0 0 12px #f6c17882;font:700 19px Georgia,serif}
+@media(max-width:740px){.fantasy-fx-fields{grid-template-columns:1fr}.fantasy-roll-card{padding:24px 12px 18px}.fantasy-die-canvas{height:230px}.fantasy-roll-overlay.is-board .fantasy-die-canvas{height:135px}.fantasy-roll-overlay.is-board .fantasy-roll-card{max-height:96%;overflow:auto}}
+@media(prefers-reduced-motion:reduce){.fantasy-roll-card,.player-die-button,.fantasy-die-button-icon{animation:none!important;transition:none!important}}

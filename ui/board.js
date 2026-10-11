@@ -21,7 +21,7 @@ export function createBoardView({ store, actions, map }) {
 
     renderTokens();
     map.sync(state.room, writeMap);
-    if (state.role === "dm" && state.room.map?.enabled && state.room.map.fog) map.reveal();
+    if (state.role === "dm" && state.room.map?.enabled && state.room.map.fog && state.room.map.fogMode !== "manual") map.reveal();
     renderRolls(byId("rollFeed"), state.room);
   }
   function renderTokens() {
@@ -38,7 +38,7 @@ export function createBoardView({ store, actions, map }) {
       ...objects.map((entry) => [...entry, "object"])
     ];
 
-    all.forEach(([id, item, type], index) => {
+    all.filter(([id,item,type]) => item.visible !== false && state.room.map?.tokenVisible?.[`${type === "character" ? "characters" : type === "enemy" ? "enemies" : type === "npc" ? "npcs" : "objects"}_${id}`] !== false).forEach(([id, item, type], index) => {
       const token = document.createElement("div");
       token.className = `token ${type}`;
       token.textContent = initials(item.name || "?");

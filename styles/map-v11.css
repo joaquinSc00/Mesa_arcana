@@ -1,0 +1,26 @@
+/* Herramientas manuales V11; sin cambiar el estilo original */
+.map-manual-tools{margin:12px 0 16px;padding:12px 14px;border:1px solid #ad915f6b;border-radius:12px;background:#151b2b}
+.map-manual-tools summary{color:#e9cc91;font:600 15px Georgia,serif;cursor:pointer}
+.map-tools-row{display:grid;grid-template-columns:2fr 1fr 2fr;gap:10px;margin:14px 0 10px}
+.map-tools-row label{min-width:0}
+.map-manual-tools .quiet-hint,.map-manual-tools .map-hint{font-size:12px}
+#mapTokenList .map-token-button{white-space:normal}
+.move-map-image{position:relative;isolation:isolate;overflow:hidden;background-color:#263145}
+.move-map-image.allowed:not(.here){outline:1px solid #98d8b0;outline-offset:-2px}
+.move-map-image.fog-hidden{background-image:none!important;background:#101723!important}
+.move-map-image.fog-explored{filter:brightness(.5)}
+.move-map-image .move-hero{display:grid;place-items:center;width:100%;height:100%;background:#7c632d77;color:white;text-shadow:0 1px 3px black}
+.move-map-image .move-range{position:relative;display:inline-block;background:#285b47a0;padding:0 4px;border-radius:50%;font-weight:bold;text-shadow:0 1px 3px black}
+.move-map-legend{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;margin-top:12px;color:#d1c5ad;font-size:12px}
+@media(max-width:720px){.map-tools-row{grid-template-columns:1fr}}
+
+.move-grid-image{position:relative;isolation:isolate;overflow:hidden;border-radius:5px;background:#172132}
+.move-map-backdrop{position:absolute;z-index:0;background-position:left top;background-repeat:no-repeat;background-size:100% 100%;pointer-events:none}
+.move-grid-image>.move-cell{position:relative;z-index:1;background:transparent;box-shadow:inset 0 0 0 1px #20263288}
+.move-grid-image>.move-cell.allowed{background:#27624b55;box-shadow:inset 0 0 0 2px #a0e3c4}
+.move-grid-image>.move-cell.fog-hidden{background:#080d16ef!important}
+.move-grid-image>.move-cell.fog-explored{background:#050a13aa!important;filter:none}
+.move-grid-image>.move-cell.here{background:#624e2c77!important}
+
+.move-map-image .move-actor-token{position:relative;z-index:1;display:inline-flex;align-items:center;justify-content:center;filter:drop-shadow(0 1px 2px black);font-size:clamp(12px,2.4vw,20px)}
+.move-grid-image>.move-cell.fog-hidden{background:#080d16!important}

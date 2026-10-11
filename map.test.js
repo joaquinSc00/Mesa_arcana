@@ -50,3 +50,20 @@ test("reveals only new cells around characters", () => {
   assert.deepEqual(Object.keys(writes[0]).sort(), ["explored/c_3_4", "explored/c_4_3", "explored/c_4_5", "explored/c_5_4"]);
   assert.equal(writes[0]["explored/c_8_8"], undefined);
 });
+
+
+test("manual fog never auto-reveals character surroundings", () => {
+  const { map } = setup();
+  const writes = [];
+  map.sync({ characters: { hero: {name:"Ayla"} }, map: {fog:true, fogMode:"manual", revealed:{}} }, (patch) => writes.push(patch));
+  map.reveal();
+  assert.equal(writes.length, 0);
+});
+
+test("optional automatic vision still records explored cells", () => {
+  const { map } = setup();
+  const writes = [];
+  map.sync({ characters: { hero: {name:"Ayla"} }, map: {fog:true, fogMode:"radius", vision:{characters_hero:0}} }, (patch) => writes.push(patch));
+  map.reveal();
+  assert.ok(writes.some(patch => patch["explored/c_2_2"]));
+});
