@@ -18,7 +18,7 @@ import { createNavigation } from "./ui/navigation.js";
 import { createHomeView } from "./ui/home.js";
 import { createPlayerView } from "./ui/player.js";
 import { createDmView } from "./ui/dm.js";
-import { createAdventurePlanner } from "./ui/adventure-planner.js";
+import { createAdventurePlanner } from "./ui/adventure-planner.js?v=valdumbria-1";
 import { createBoardView } from "./ui/board.js";
 import { hydrateIcons, setupCollapsiblePanels, renderStatus, toast } from "./ui/components.js";
 import { bindEntityInspection } from "./v3-ui.js";
