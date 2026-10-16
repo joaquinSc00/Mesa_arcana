@@ -57,6 +57,13 @@ export function createFirebaseSync({ store, storage, sdk = globalThis.firebase, 
     return (await db.ref(rootPath).once("value")).val() || {};
   }
   async function removeRoom(code) { await initDatabase().ref(`${rootPath}/${code}`).remove(); }
+  async function listCharacters(code) {
+    const db = initDatabase();
+    if (!db) throw new Error("Firebase no esta disponible.");
+    const normalized = normalizeRoomCode(code);
+    if (!/^[A-Z0-9-]{1,64}$/.test(normalized)) throw new Error("Codigo de sala invalido.");
+    return (await db.ref(`${rootPath}/${normalized}/characters`).once("value")).val() || {};
+  }
   function assignPath(path, value) {
     const parts = path.split("/");
     let target = state.room;
@@ -76,5 +83,5 @@ export function createFirebaseSync({ store, storage, sdk = globalThis.firebase, 
     return Promise.resolve();
   }
   function remove(path) { return set(path, null); }
-  return { connectToRoom, listRooms, removeRoom, set, update, remove, disconnect, isRemote: () => !!roomRef };
+  return { connectToRoom, listRooms, listCharacters, removeRoom, set, update, remove, disconnect, isRemote: () => !!roomRef };
 }

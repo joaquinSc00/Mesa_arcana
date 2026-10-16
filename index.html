@@ -96,6 +96,8 @@
               <span data-icon="log-in"></span>
               Entrar
             </button>
+            <button class="secondary-button" id="resumeCharacterButton" type="button">Retomar personaje</button>
+            <div class="entity-list" id="resumeCharacterList" aria-live="polite"></div>
           </form>
         </div>
         <div class="panel active-rooms-panel">
@@ -550,7 +552,7 @@
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
   <script type="module">
-    import { createApplication } from "./app.js?v=board-controls-1";
+    import { createApplication } from "./app.js?v=resume-1";
     createApplication().init();
   </script>
 </body>

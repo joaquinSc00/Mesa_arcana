@@ -33,6 +33,34 @@ export function createHomeView({ store, sync, actions, navigation }) {
     window.open(url.toString(), "_blank", "noopener");
   }
   function bind() {
+    const resumeButton = byId("resumeCharacterButton");
+    const resumeList = byId("resumeCharacterList");
+    byId("roomCodeInput").addEventListener("input", () => { resumeList.replaceChildren(); });
+    resumeButton.addEventListener("click", async () => {
+      const code = byId("roomCodeInput").value.trim().toUpperCase();
+      resumeList.replaceChildren();
+      if (!code) { store.emit("notice", "Escribi el codigo de sala."); return; }
+      resumeButton.disabled = true;
+      try {
+        const characters = await sync.listCharacters(code);
+        if (byId("roomCodeInput").value.trim().toUpperCase() !== code) return;
+        if (!Object.keys(characters).length) resumeList.textContent = "No hay personajes guardados en esta sala.";
+        for (const [id, character] of Object.entries(characters)) {
+          const button = document.createElement("button");
+          button.type = "button";
+          button.className = "secondary-button";
+          button.textContent = `${character.name || "Sin nombre"} · ${character.playerName || "Jugador"} · ${character.status === "ready" ? "Listo" : "Borrador"}`;
+          button.addEventListener("click", async () => {
+            button.disabled = true;
+            try { await actions.rooms.resumeCharacter({ roomCode: code, characterId: id }); }
+            catch (error) { store.emit("notice", error.message); }
+            finally { button.disabled = false; }
+          });
+          resumeList.append(button);
+        }
+      } catch (error) { store.emit("notice", error.message); }
+      finally { resumeButton.disabled = false; }
+    });
     byId("createRoomForm").addEventListener("submit", event => {
       event.preventDefault(); actions.rooms.createRoom({ campaignName: byId("campaignNameInput").value, hostName: byId("hostNameInput").value });
     });

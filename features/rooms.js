@@ -20,6 +20,13 @@ export function createRoomActions({ store, sync, storage, dialogs }) {
     if (!saved?.roomCode || !saved.role) return;
     return sync.connectToRoom(saved.roomCode, saved.role, saved.participantName, saved.participantId);
   }
+  async function resumeCharacter({ roomCode, characterId }) {
+    const code = normalizeRoomCode(roomCode);
+    const characters = await sync.listCharacters(code);
+    const character = Object.hasOwn(characters, characterId) ? characters[characterId] : null;
+    if (!character) throw new Error("El personaje ya no existe en esta sala.");
+    return sync.connectToRoom(code, "player", character.playerName || character.name || "Jugador", characterId);
+  }
   async function deleteRoom(roomCode) {
     if (dialogs.prompt(`Codigo para borrar la sala ${roomCode}`) !== DELETE_ROOM_CODE) {
       emit("notice", "Codigo incorrecto. No se borro la sala."); return;
@@ -30,5 +37,5 @@ export function createRoomActions({ store, sync, storage, dialogs }) {
     }
     emit("rooms:changed"); emit("notice", `Sala ${roomCode} borrada.`);
   }
-  return { createRoom, joinRoom, restoreSession, deleteRoom };
+  return { createRoom, joinRoom, restoreSession, resumeCharacter, deleteRoom };
 }

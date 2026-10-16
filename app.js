@@ -1,7 +1,7 @@
 import { createStore } from "./core/state.js";
 import { createStorage } from "./core/storage.js";
-import { createFirebaseSync } from "./core/firebase.js?v=modules-1";
-import { createRoomActions } from "./features/rooms.js";
+import { createFirebaseSync } from "./core/firebase.js?v=resume-1";
+import { createRoomActions } from "./features/rooms.js?v=resume-1";
 import { createCharacterActions } from "./features/characters.js";
 import { createCombatActions } from "./features/combat.js";
 import { createDiceActions } from "./features/dice.js";
@@ -15,7 +15,7 @@ import { createMovementView } from "./ui/movement.js";
 import { createMapActions } from "./features/map-sync.js";
 import { createMap } from "./map.js";
 import { createNavigation } from "./ui/navigation.js";
-import { createHomeView } from "./ui/home.js";
+import { createHomeView } from "./ui/home.js?v=resume-1";
 import { createPlayerView } from "./ui/player.js";
 import { createDmView } from "./ui/dm.js";
 import { createAdventurePlanner } from "./ui/adventure-planner.js?v=valdumbria-1";
