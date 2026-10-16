@@ -20,7 +20,7 @@ import { createPlayerView } from "./ui/player.js";
 import { createDmView } from "./ui/dm.js";
 import { createAdventurePlanner } from "./ui/adventure-planner.js?v=valdumbria-1";
 import { createBoardView } from "./ui/board.js";
-import { hydrateIcons, setupCollapsiblePanels, renderStatus, toast } from "./ui/components.js";
+import { hydrateIcons, setupCollapsiblePanels, setupFullscreen, renderStatus, toast } from "./ui/components.js?v=fullscreen-1";
 import { bindEntityInspection } from "./v3-ui.js";
 
 export function createApplication({ sdk = globalThis.firebase, storage = createStorage(),
@@ -56,6 +56,7 @@ export function createApplication({ sdk = globalThis.firebase, storage = createS
     })
   ];
   function init() {
+    subscriptions.push(setupFullscreen());
     hydrateIcons(); Object.values(views).forEach(view => view.bind()); navigation.bind();
     planner.bind(); movement.bind(); fantasy.bind(); map.init(); setupCollapsiblePanels(); bindEntityInspection();
     const params = new URLSearchParams(window.location.search);

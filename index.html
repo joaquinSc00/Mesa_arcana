@@ -25,6 +25,9 @@
       </button>
 
       <div class="topbar-actions">
+        <button class="icon-button" id="fullscreenButton" type="button" title="Pantalla completa" aria-label="Pantalla completa" aria-pressed="false">
+          <span aria-hidden="true">⛶</span>
+        </button>
         <button class="icon-button" id="copyRoomButton" type="button" title="Copiar codigo de sala" aria-label="Copiar codigo de sala">
           <span data-icon="copy"></span>
         </button>
@@ -543,7 +546,7 @@
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
   <script type="module">
-    import { createApplication } from "./app.js?v=valdumbria-1";
+    import { createApplication } from "./app.js?v=fullscreen-1";
     createApplication().init();
   </script>
 </body>

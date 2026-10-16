@@ -17,6 +17,44 @@ export function hydrateIcons() {
     element.textContent = icons[element.dataset.icon] || "-";
   });
 }
+export function setupFullscreen() {
+  const button = byId("fullscreenButton");
+  const root = document.documentElement;
+  const current = () => document.fullscreenElement || document.webkitFullscreenElement;
+  const update = () => {
+    const active = Boolean(current());
+    const label = active ? "Salir de pantalla completa" : "Pantalla completa";
+    button.title = label;
+    button.setAttribute("aria-label", label);
+    button.setAttribute("aria-pressed", String(active));
+    button.firstElementChild.textContent = active ? "↙" : "⛶";
+  };
+  const toggle = async () => {
+    try {
+      const target = current() ? document : root;
+      const method = current()
+        ? document.exitFullscreen || document.webkitExitFullscreen
+        : root.requestFullscreen || root.webkitRequestFullscreen;
+      if (!method) {
+        toast("Este navegador no admite pantalla completa para esta página.");
+        return;
+      }
+      await method.call(target);
+      update();
+    } catch {
+      toast("No se pudo cambiar la pantalla completa en este dispositivo.");
+    }
+  };
+  button.addEventListener("click", toggle);
+  document.addEventListener("fullscreenchange", update);
+  document.addEventListener("webkitfullscreenchange", update);
+  update();
+  return () => {
+    button.removeEventListener("click", toggle);
+    document.removeEventListener("fullscreenchange", update);
+    document.removeEventListener("webkitfullscreenchange", update);
+  };
+}
 export function setupCollapsiblePanels() {
   document.querySelectorAll(".collapsible-panel").forEach((panel) => {
     const heading = panel.querySelector(":scope > h2");
