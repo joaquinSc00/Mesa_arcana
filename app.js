@@ -19,7 +19,7 @@ import { createHomeView } from "./ui/home.js";
 import { createPlayerView } from "./ui/player.js";
 import { createDmView } from "./ui/dm.js";
 import { createAdventurePlanner } from "./ui/adventure-planner.js?v=valdumbria-1";
-import { createBoardView } from "./ui/board.js";
+import { createBoardView } from "./ui/board.js?v=board-controls-1";
 import { hydrateIcons, setupCollapsiblePanels, setupFullscreen, renderStatus, toast } from "./ui/components.js?v=fullscreen-1";
 import { bindEntityInspection } from "./v3-ui.js";
 

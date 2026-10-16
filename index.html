@@ -12,6 +12,7 @@
   <link rel="stylesheet" href="styles/dm-v9.css">
   <link rel="stylesheet" href="styles/player-v12.css">
   <link rel="stylesheet" href="styles/fantasy-v13.css?v=1">
+  <link rel="stylesheet" href="styles/board-controls.css?v=1">
 </head>
 <body>
   <div class="app-shell">
@@ -80,7 +81,7 @@
             <h2>Entrar</h2>
             <label>
               Codigo de sala
-              <input id="roomCodeInput" maxlength="12" placeholder="LUNA-483" autocomplete="off">
+              <input id="roomCodeInput" maxlength="64" placeholder="LUNA-483" autocomplete="off">
             </label>
             <label>
               Tu nombre
@@ -514,9 +515,12 @@
                 <p class="eyebrow">Tablero publico</p>
                 <h1 id="boardTitle">Sin escena</h1>
               </div>
+              <div class="board-display-controls">
+              <button class="icon-button" id="toggleBoardTextButton" type="button" title="Plegar textos" aria-label="Plegar textos" aria-expanded="true" aria-controls="boardTitle boardSceneDescription"><span aria-hidden="true">T</span></button>
               <button class="icon-button" id="toggleBoardScaleButton" type="button" title="Ocultar panel lateral" aria-label="Ocultar panel lateral" aria-pressed="false">
                 <span data-icon="maximize"></span>
               </button>
+              </div>
             </div>
             <p id="boardSceneDescription">El director todavia no mostro una escena.</p>
             <div class="board-stage" id="boardStage">
@@ -546,7 +550,7 @@
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
   <script type="module">
-    import { createApplication } from "./app.js?v=fullscreen-1";
+    import { createApplication } from "./app.js?v=board-controls-1";
     createApplication().init();
   </script>
 </body>

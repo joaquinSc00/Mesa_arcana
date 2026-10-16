@@ -55,6 +55,16 @@ export function createBoardView({ store, actions, map }) {
     button.setAttribute("aria-label", focused ? "Mostrar panel lateral" : "Ocultar panel lateral");
     button.title = focused ? "Mostrar panel lateral" : "Ocultar panel lateral";
   }
-  function bind() { byId("toggleBoardScaleButton").addEventListener("click", toggleBoardLayout); }
+  function bind() {
+    byId("toggleBoardScaleButton").addEventListener("click", toggleBoardLayout);
+    byId("toggleBoardTextButton").addEventListener("click", () => {
+      const collapsed = byId("boardShell").classList.toggle("text-collapsed");
+      const button = byId("toggleBoardTextButton");
+      button.setAttribute("aria-expanded", String(!collapsed));
+      const label = collapsed ? "Mostrar textos" : "Plegar textos";
+      button.setAttribute("aria-label", label);
+      button.title = label;
+    });
+  }
   return { bind, render: renderBoard };
 }

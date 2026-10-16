@@ -1,0 +1,8 @@
+.board-display-controls { display: flex; gap: 8px; flex-shrink: 0; }
+#boardView .board-shell.focused { grid-template-columns: minmax(0, 1fr); }
+#boardView .board-shell.focused .board-side { display: none; }
+#boardView .text-collapsed .board-header > div:first-child,
+#boardView .text-collapsed #boardSceneDescription { display: none; }
+#boardView .text-collapsed .board-header { justify-content: flex-end; }
+#boardView .text-collapsed .board-scene { grid-template-rows: auto minmax(0, 1fr); }
+#boardView .text-collapsed .board-stage { min-height: max(360px, calc(100dvh - 200px)); }
