@@ -1,3 +1,5 @@
+import { bindPinchZoom } from "./ui/pinch-zoom.js";
+
 export function createMap({ document = globalThis.document, window = globalThis.window,
   ResizeObserver = globalThis.ResizeObserver, Image = globalThis.Image } = {}) {
   const $ = (id) => document.getElementById(id);
@@ -224,8 +226,22 @@ export function createMap({ document = globalThis.document, window = globalThis.
     if (ready) return;
     ready = true;
     const canvas = $("dmMapCanvas");
-    new ResizeObserver(() => drawAll()).observe(canvas);
-    new ResizeObserver(() => draw("public")).observe($("publicMapCanvas"));
+    new ResizeObserver(() => fit("dm")).observe(canvas);
+    const publicCanvas = $("publicMapCanvas");
+    new ResizeObserver(() => fit("public")).observe(publicCanvas);
+    bindPinchZoom(publicCanvas, {
+      read: () => view.public,
+      write: (camera) => { Object.assign(view.public, camera, { fitted: true }); draw("public"); }
+    });
+    publicCanvas.addEventListener("wheel", (event) => {
+      event.preventDefault();
+      const rect = publicCanvas.getBoundingClientRect(), camera = view.public;
+      const x = event.clientX - rect.left, y = event.clientY - rect.top;
+      const zoom = Math.max(0.1, Math.min(8, camera.zoom * (event.deltaY < 0 ? 1.1 : 0.9)));
+      camera.x = x - (x - camera.x) * zoom / camera.zoom;
+      camera.y = y - (y - camera.y) * zoom / camera.zoom;
+      camera.zoom = zoom; draw("public");
+    }, { passive: false });
     const gridLimit = () => ({ cols: Math.max(1, Math.ceil((map.width-map.offsetX)/map.cellWidth)), rows: Math.max(1, Math.ceil((map.height-map.offsetY)/map.cellHeight)) });
     const inside = (p) => { const {cols,rows}=gridLimit(); return p.x >= 0 && p.y >= 0 && p.x < cols && p.y < rows; };
     const paint = (point) => {

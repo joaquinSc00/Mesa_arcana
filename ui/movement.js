@@ -1,8 +1,13 @@
 import { byId } from './dom.js';
+import { bindPinchZoom } from './pinch-zoom.js';
 
 export function createMovementView({ store, actions }) {
   const { state } = store;
   let opened = false;
+  let camera = { zoom: 1, x: 0, y: 0 };
+  const applyCamera = () => {
+    $('movePlayerGrid').style.transform = `translate(${camera.x}px, ${camera.y}px) scale(${camera.zoom})`;
+  };
   const $ = byId;
   const cell = (x,y) => `${x},${y}`;
   function current() {
@@ -43,6 +48,7 @@ export function createMovementView({ store, actions }) {
     const x0=Math.max(0,Math.min(cols-Math.min(cols,span*2+1),pos.x-span));
     const y0=Math.max(0,Math.min(rows-Math.min(rows,span*2+1),pos.y-span));
     const viewCols=Math.min(cols,span*2+1),viewRows=Math.min(rows,span*2+1);
+    $('moveMapViewport').style.aspectRatio = `${viewCols} / ${viewRows}`;
     container.style.gridTemplateColumns=`repeat(${viewCols}, minmax(0, 1fr))`;
     container.classList.add("move-grid-image");
     // Mismo mapa, zoom y coordenadas que el tablero. Imagen de fondo bajo las casillas.
@@ -101,9 +107,22 @@ export function createMovementView({ store, actions }) {
   }
   function render(){if(!state.room)return;renderDm();renderPlayer();}
   function bind(){
+    const grid = $('movePlayerGrid');
+    const viewport = document.createElement('div');
+    viewport.id = 'moveMapViewport'; viewport.className = 'move-map-viewport';
+    grid.parentElement.insertBefore(viewport, grid); viewport.append(grid);
+    bindPinchZoom(viewport, {
+      min: 1, max: 4, read: () => camera,
+      write: (next) => { camera = next; applyCamera(); }
+    });
+    const reset = document.createElement('button');
+    reset.type = 'button'; reset.className = 'icon-button'; reset.textContent = '↔';
+    reset.title = 'Ajustar mapa'; reset.setAttribute('aria-label', 'Ajustar mapa');
+    reset.addEventListener('click', () => { camera = { zoom: 1, x: 0, y: 0 }; applyCamera(); });
+    viewport.before(reset);
     $('moveAllow').addEventListener('click',()=>actions.movement.authorize($('moveCharacter').value,$('moveSteps').value));
     $('moveCancel').addEventListener('click',()=>actions.movement.close());
-    $('movePlayerOpen').addEventListener('click',()=>{opened=true;renderPlayer();});
+    $('movePlayerOpen').addEventListener('click',()=>{camera={zoom:1,x:0,y:0};applyCamera();opened=true;renderPlayer();});
     $('movePlayerClose').addEventListener('click',()=>{opened=false;renderPlayer();});
   }
   return {bind,render};

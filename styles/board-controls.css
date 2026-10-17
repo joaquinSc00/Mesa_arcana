@@ -1,4 +1,8 @@
 .board-display-controls { display: flex; gap: 8px; flex-shrink: 0; }
+#publicMapCanvas, .move-map-viewport { touch-action: none; }
+.move-map-viewport { overflow: hidden; width: 100%; max-width: 580px; margin: auto; }
+.move-map-viewport .move-grid { width: 100%; transform-origin: 0 0; }
+.move-map-viewport .move-cell { touch-action: none; }
 #boardView .board-shell.focused { grid-template-columns: minmax(0, 1fr); }
 #boardView .board-shell.focused .board-side { display: none; }
 #boardView .text-collapsed .board-header > div:first-child,

@@ -56,6 +56,7 @@ export function createBoardView({ store, actions, map }) {
     button.title = focused ? "Mostrar panel lateral" : "Ocultar panel lateral";
   }
   function bind() {
+    byId("fitBoardMapButton").addEventListener("click", () => map.fit("public"));
     byId("toggleBoardScaleButton").addEventListener("click", toggleBoardLayout);
     byId("toggleBoardTextButton").addEventListener("click", () => {
       const collapsed = byId("boardShell").classList.toggle("text-collapsed");

@@ -68,13 +68,13 @@ export function createFantasyFxView({store,actions,map}){
     animDice=requestAnimationFrame(frame);
   }
   function point(key){
-    const stage=document.getElementById('boardStage'),map=state.room?.map||{};
+    const stage=document.getElementById('boardStage'),roomMap=state.room?.map||{};
     const w=stage?.clientWidth||800,h=stage?.clientHeight||520;
     if(!key)return{x:w*.5,y:h*.53};
     if(map && state.room?.map?.enabled){const projected=map.projectToken('public',key);if(projected)return projected;}
     const all=['characters','enemies','npcs','objects'].flatMap(g=>Object.keys(state.room?.[g]||{}).map(i=>`${g}_${i}`));
-    const index=all.indexOf(key),p=map.positions?.[key]||{x:2+index%8,y:2+Math.floor(index/8)};
-    if(map.enabled){const mapW=Number(map.width)||900,mapH=Number(map.height)||650;const s=Math.min(w/mapW,h/mapH)*.96;return{x:(w-mapW*s)/2+((map.offsetX||0)+(p.x+.5)*(map.cellWidth||60))*s,y:(h-mapH*s)/2+((map.offsetY||0)+(p.y+.5)*(map.cellHeight||60))*s};}
+    const index=all.indexOf(key),p=roomMap.positions?.[key]||{x:2+index%8,y:2+Math.floor(index/8)};
+    if(roomMap.enabled){const mapW=Number(roomMap.width)||900,mapH=Number(roomMap.height)||650;const s=Math.min(w/mapW,h/mapH)*.96;return{x:(w-mapW*s)/2+((roomMap.offsetX||0)+(p.x+.5)*(roomMap.cellWidth||60))*s,y:(h-mapH*s)/2+((roomMap.offsetY||0)+(p.y+.5)*(roomMap.cellHeight||60))*s};}
     return{x:w*(.1+(Math.max(0,index)%5)*.16),y:h*(.14+Math.floor(Math.max(0,index)/5)*.18)};
   }
   function playFx(fx){
